@@ -22,6 +22,48 @@ const eslintConfig = [
       "test-results/**",
     ],
   },
+  {
+    // Un paramètre ou une variable préfixé "_" est intentionnellement
+    // inutilisé (ex. un paramètre d'interface non exploité par un stub).
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+    },
+  },
+  {
+    // Aucun accès direct à Supabase en dehors de la couche de données :
+    // voir docs/ARCHITECTURE.md § Couche d'abstraction données et
+    // authentification. Dérogation ci-dessous pour src/lib/data,
+    // src/lib/supabase, scripts/ et les tests.
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@supabase/*", "@supabase/**"],
+              message:
+                "Import direct de @supabase/* interdit en dehors de src/lib/data et src/lib/supabase. Passez par les repositories exposés par src/lib/data (voir docs/ARCHITECTURE.md).",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
+      "src/lib/data/**/*.{ts,tsx}",
+      "src/lib/supabase/**/*.{ts,tsx}",
+      "scripts/**/*.{ts,tsx}",
+      "**/*.test.{ts,tsx}",
+      "supabase/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "no-restricted-imports": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

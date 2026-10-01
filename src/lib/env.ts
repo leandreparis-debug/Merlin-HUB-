@@ -44,8 +44,25 @@ const serverOnlyEnvSchema = z.object({
 
 const serverEnvSchema = publicEnvSchema.merge(serverOnlyEnvSchema);
 
+/**
+ * Fournisseur de données : `supabase` (par défaut, utilisé en V1) ou `memory`
+ * (store en mémoire, pratique pour développer sans Supabase ; jamais en production).
+ */
+const dataProviderSchema = z
+  .preprocess(
+    emptyToUndefined,
+    z.enum(["supabase", "memory"], {
+      message: "DATA_PROVIDER doit valoir « supabase » ou « memory »",
+    }),
+  )
+  .default("supabase");
+
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
+export type DataProvider = z.infer<typeof dataProviderSchema>;
+export type ServerEnvWithDataProvider = ServerEnv & {
+  DATA_PROVIDER: DataProvider;
+};
 
 /**
  * Construit un message d'erreur clair, en français, listant chaque variable
@@ -101,4 +118,47 @@ export function getEnv(): ServerEnv {
   }
 
   return result.data;
+}
+
+/**
+ * Lit et valide les variables d'environnement serveur, y compris `DATA_PROVIDER`.
+ * Quand `DATA_PROVIDER=supabase` (valeur par défaut), exige que les trois
+ * variables Supabase soient renseignées et liste précisément celles qui
+ * manquent, sans jamais afficher leur valeur. `getEnv()` reste inchangée et
+ * ne doit pas être utilisée pour ce contrôle : elle doit rester utilisable
+ * sans aucune variable Supabase (pages et tests de l'étape 1).
+ */
+export function getServerEnv(): ServerEnvWithDataProvider {
+  const base = getEnv();
+
+  const providerResult = dataProviderSchema.safeParse(
+    process.env["DATA_PROVIDER"],
+  );
+  if (!providerResult.success) {
+    throw new Error(
+      formatZodError("Variable DATA_PROVIDER invalide :", providerResult.error),
+    );
+  }
+  const dataProvider = providerResult.data;
+
+  if (dataProvider === "supabase") {
+    const missing: string[] = [];
+    if (!base.NEXT_PUBLIC_SUPABASE_URL)
+      missing.push("NEXT_PUBLIC_SUPABASE_URL");
+    if (!base.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      missing.push("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    }
+    if (!base.SUPABASE_SERVICE_ROLE_KEY) {
+      missing.push("SUPABASE_SERVICE_ROLE_KEY");
+    }
+    if (missing.length > 0) {
+      throw new Error(
+        `Variables d'environnement Supabase manquantes : ${missing.join(", ")}. ` +
+          "Renseignez-les dans .env.local, ou définissez DATA_PROVIDER=memory " +
+          "pour développer localement sans Supabase.",
+      );
+    }
+  }
+
+  return { ...base, DATA_PROVIDER: dataProvider };
 }
