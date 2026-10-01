@@ -11,6 +11,21 @@ Merlin migrera à terme vers une infrastructure différente de celle de son lanc
 
 Les composants, pages et routes API ne connaissent que les fonctions typées exposées par ces deux dossiers, jamais les détails d'implémentation (client Supabase, requêtes SQL, SDK d'authentification).
 
+Cette règle est imposée par ESLint (`no-restricted-imports` sur `@supabase/*`, dans `eslint.config.mjs`), avec dérogation pour `src/lib/data`, `src/lib/supabase`, `scripts/` et les fichiers de test.
+
+### Couche de données (étape 2)
+
+`src/lib/data/` expose :
+
+- **`types.ts`** : types de domaine purs (camelCase, dates en ISO 8601), sans dépendance Supabase.
+- **`schemas.ts`** : schémas zod pour toute entrée d'écriture, reprenant les contraintes SQL (longueurs, formats).
+- **`errors.ts`** : erreurs communes aux deux implémentations (`NotFoundError`, `ConflictError`, `ValidationError`, `UnexpectedRepositoryError`, `NotImplementedError`), sans fuite de détail interne.
+- **`repositories/`** : interfaces (`ProfileRepository`, `AppRepository`, `AnnouncementRepository`, `ReportRepository`, `ActivityLogRepository`) regroupées dans le type `Repositories`.
+- **`providers/supabase/`** et **`providers/memory/`** : deux implémentations de ces interfaces — Supabase (V1) et un store en mémoire isolé par instance (développement sans Supabase, `DATA_PROVIDER=memory`, jamais en production).
+- **`index.ts`** : fabrique — `getUserRepositories()` (RLS appliquée, client basé sur la session) et `getAdminRepositories()` (service role, contourne la RLS, réservé aux opérations serveur après vérification du rôle admin dans le code appelant).
+
+`src/lib/supabase/` expose les deux clients bas niveau (`admin.ts` avec la clé service role, `server.ts` basé sur la session utilisateur via `@supabase/ssr`), tous deux `import "server-only"`. Détail du schéma SQL, de la matrice RLS et des fonctions : `docs/DATA-MODEL.md`. Mise en route d'un projet Supabase : `docs/SUPABASE-SETUP.md`.
+
 ### Trajectoire V1 → V2
 
 - **V1 (actuelle)** : hébergement Vercel, données et authentification via Supabase (Postgres + Supabase Auth), connexion par identifiant professionnel (email) et mot de passe.
@@ -25,6 +40,7 @@ src/app/            → peut importer src/components, src/lib, src/types
 src/components/ui/  → composants génériques, ne dépendent que de src/lib/utils et src/types
 src/components/layout/ → peut importer src/components/ui, src/lib, src/types
 src/lib/data/        → point d'entrée unique vers les données (aucune autre couche n'accède à la base)
+src/lib/supabase/    → clients Supabase bas niveau, utilisés uniquement par src/lib/data
 src/lib/auth/        → point d'entrée unique vers l'authentification (aucune autre couche n'accède au fournisseur)
 src/lib/             → utilitaires sans dépendance vers src/app ou src/components
 src/types/           → types partagés, aucune dépendance vers le reste de l'application

@@ -23,24 +23,28 @@ Ouvrir [http://localhost:3000](http://localhost:3000).
 
 ## Variables d'environnement
 
-Voir `.env.example`. Seule `NEXT_PUBLIC_APP_URL` est obligatoire (valeur par défaut : `http://localhost:3000`). Les variables Supabase (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) seront utilisées à partir de l'étape 2. La lecture et la validation se font via `src/lib/env.ts`.
+Voir `.env.example`. Seule `NEXT_PUBLIC_APP_URL` est obligatoire (valeur par défaut : `http://localhost:3000`). La lecture et la validation se font via `src/lib/env.ts`.
+
+Pour les données (étape 2), `DATA_PROVIDER` vaut `supabase` par défaut (voir `docs/SUPABASE-SETUP.md` pour configurer un projet) ou `memory` pour développer sans Supabase (store en mémoire, jamais en production). Avec `DATA_PROVIDER=supabase`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY` sont requises (`getServerEnv()` dans `src/lib/env.ts`).
 
 ## Scripts disponibles
 
-| Script                 | Description                                      |
-| ---------------------- | ------------------------------------------------ |
-| `npm run dev`          | Démarre le serveur de développement              |
-| `npm run build`        | Build de production                              |
-| `npm run start`        | Démarre le serveur de production (après `build`) |
-| `npm run lint`         | Vérifie le code avec ESLint                      |
-| `npm run lint:fix`     | Corrige automatiquement les problèmes ESLint     |
-| `npm run format`       | Formate le code avec Prettier                    |
-| `npm run format:check` | Vérifie le formatage sans modifier les fichiers  |
-| `npm run typecheck`    | Vérifie les types TypeScript (`tsc --noEmit`)    |
-| `npm run test`         | Lance les tests unitaires (Vitest, mode run)     |
-| `npm run test:watch`   | Lance les tests unitaires en mode watch          |
-| `npm run test:e2e`     | Lance les tests end-to-end (Playwright)          |
-| `npm run check`        | Enchaîne lint, format:check, typecheck et test   |
+| Script                       | Description                                                           |
+| ---------------------------- | --------------------------------------------------------------------- |
+| `npm run dev`                | Démarre le serveur de développement                                   |
+| `npm run build`              | Build de production                                                   |
+| `npm run start`              | Démarre le serveur de production (après `build`)                      |
+| `npm run lint`               | Vérifie le code avec ESLint                                           |
+| `npm run lint:fix`           | Corrige automatiquement les problèmes ESLint                          |
+| `npm run format`             | Formate le code avec Prettier                                         |
+| `npm run format:check`       | Vérifie le formatage sans modifier les fichiers                       |
+| `npm run typecheck`          | Vérifie les types TypeScript (`tsc --noEmit`)                         |
+| `npm run test`               | Lance les tests unitaires (Vitest, mode run)                          |
+| `npm run test:watch`         | Lance les tests unitaires en mode watch                               |
+| `npm run test:e2e`           | Lance les tests end-to-end (Playwright)                               |
+| `npm run check`              | Enchaîne lint, format:check, typecheck et test                        |
+| `npm run db:bundle`          | Concatène les migrations SQL dans `supabase/all-in-one.sql`           |
+| `npm run db:bootstrap-admin` | Crée le premier compte administrateur (voir `docs/SUPABASE-SETUP.md`) |
 
 ## Structure des dossiers
 
@@ -48,13 +52,16 @@ Voir `.env.example`. Seule `NEXT_PUBLIC_APP_URL` est obligatoire (valeur par dé
 src/app/              Routes Next.js (App Router), layout, pages, API
 src/components/ui/    Composants d'interface (shadcn/ui, adaptés aux tokens Merlin)
 src/components/layout/ En-tête, pied de page, conteneur de page, lien d'évitement
-src/lib/data/          Future couche d'accès aux données (repositories) — voir son README
+src/lib/data/          Couche d'accès aux données (repositories, Supabase + mémoire) — voir son README
+src/lib/supabase/      Clients Supabase bas niveau (admin, utilisateur)
 src/lib/auth/          Futur service d'authentification abstrait — voir son README
 src/lib/               Utilitaires, constantes, variables d'environnement
 src/types/             Types TypeScript partagés
 e2e/                   Tests end-to-end Playwright
-docs/                  Documentation (architecture, etc.)
+docs/                  Documentation (architecture, modèle de données, etc.)
 public/brand/          Logo et ressources de marque
+scripts/               Scripts d'exploitation (bootstrap admin, bundle de migrations)
+supabase/migrations/   Migrations SQL (schéma, RLS, fonctions)
 ```
 
 Voir `docs/ARCHITECTURE.md` pour le détail des règles de dépendance entre ces dossiers.
@@ -66,15 +73,15 @@ Voir `docs/ARCHITECTURE.md` pour le détail des règles de dépendance entre ces
 ## Feuille de route
 
 1. ✅ Initialisation du projet, outillage, design system, layout
-2. Authentification (identifiant professionnel + mot de passe, rôles utilisateur/admin)
-3. Menu utilisateur, session, protection des routes
-4. Catalogue d'applications (statut en ligne/hors ligne/maintenance, journal des changements)
+2. ✅ Base de données et couche d'abstraction (migrations SQL, RLS, repositories Supabase + mémoire)
+3. Authentification (identifiant professionnel + mot de passe, rôles utilisateur/admin, session)
+4. Page d'accueil et catalogue d'applications (statut en ligne/hors ligne/maintenance, journal des changements)
 5. Administration des applications
 6. Administration des utilisateurs
 7. Annonces épinglables
 8. Signalements de bugs et demandes, avec suivi
 9. Journal d'activité
-10. Migration V2 : serveur interne Carrefour Property, SSO, SQL Server
+10. Vérification globale et déploiement
 
 ### Trajectoire d'hébergement
 
