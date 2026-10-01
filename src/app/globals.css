@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens Merlin
+ * ====================
+ * Organisation de ce fichier :
+ *   1. Tokens de marque bruts (--brand-*, --neutral-*, --status-*) : valeurs HEX.
+ *   2. Bloc `@theme` : expose ces tokens à Tailwind v4 (génère les classes
+ *      utilitaires `bg-brand-600`, `text-status-online-text`, `rounded-card`, etc.)
+ *      en configuration CSS-first (pas de tailwind.config.js).
+ *   3. Variables CSS shadcn/ui (--background, --primary, --ring, …), qui
+ *      s'appuient sur les tokens de marque définis plus haut.
+ *
+ * Pour ajuster la couleur de marque « prune » Carrefour Property si la charte
+ * exacte diffère, modifie uniquement la valeur de `--brand-600` ci-dessous :
+ * le reste de l'échelle et les variables shadcn en dépendent.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* 1. Échelle de marque « prune », ancrée sur --brand-600 ≈ #8B2262 */
+  --brand-50: #fbf3f8;
+  --brand-100: #f6e3f0;
+  --brand-200: #edc7e1;
+  --brand-300: #e09fc9;
+  --brand-400: #cf6fa9;
+  --brand-500: #b3447f;
+  --brand-600: #8b2262; /* couleur principale de la marque — ajuster ici */
+  --brand-700: #751b52;
+  --brand-800: #5e1742;
+  --brand-900: #4a1235;
+  --brand-950: #2c0a20;
+
+  /* Échelle neutre légèrement chaude (fond de page très clair, texte) */
+  --neutral-50: #faf9f8;
+  --neutral-100: #f3f1ef;
+  --neutral-200: #e7e3df;
+  --neutral-300: #d6d0c9;
+  --neutral-400: #b5ada3;
+  --neutral-500: #948b80;
+  --neutral-600: #756c62;
+  --neutral-700: #5b534a;
+  --neutral-800: #413a33;
+  --neutral-900: #2b2622;
+  --neutral-950: #191613;
+
+  /* Couleurs sémantiques de statut (catalogue d'apps, étape 4) */
+  --status-online: #16a34a;
+  --status-online-bg: #ecfdf3;
+  --status-online-text: #166534;
+
+  --status-offline: #dc2626;
+  --status-offline-bg: #fef2f2;
+  --status-offline-text: #991b1b;
+
+  --status-maintenance: #d97706;
+  --status-maintenance-bg: #fffbeb;
+  --status-maintenance-text: #92400e;
+
+  /* Rayons et ombres (valeurs brutes ; exposées à Tailwind dans le bloc @theme ci-dessous) */
+  --radius-card-base: 1.5rem;
+  --radius-control-base: 0.625rem;
+  --shadow-color: 222deg 20% 20%;
+  --shadow-soft-sm-base: 0 1px 2px hsl(var(--shadow-color) / 0.06);
+  --shadow-soft-md-base:
+    0 4px 16px hsl(var(--shadow-color) / 0.08),
+    0 1px 3px hsl(var(--shadow-color) / 0.06);
+
+  /* Variables shadcn/ui — s'appuient sur les tokens de marque ci-dessus */
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-900);
+  --card: #ffffff;
+  --card-foreground: var(--neutral-900);
+  --popover: #ffffff;
+  --popover-foreground: var(--neutral-900);
+  --primary: var(--brand-600);
+  --primary-foreground: #ffffff;
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--neutral-900);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-600);
+  --accent: var(--brand-50);
+  --accent-foreground: var(--brand-700);
+  --destructive: var(--status-offline);
+  --border: var(--neutral-200);
+  --input: var(--neutral-200);
+  --ring: var(--brand-500);
+}
+
+@theme inline {
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+  --color-brand-950: var(--brand-950);
+
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
+  --color-neutral-950: var(--neutral-950);
+
+  --color-status-online: var(--status-online);
+  --color-status-online-bg: var(--status-online-bg);
+  --color-status-online-text: var(--status-online-text);
+  --color-status-offline: var(--status-offline);
+  --color-status-offline-bg: var(--status-offline-bg);
+  --color-status-offline-text: var(--status-offline-text);
+  --color-status-maintenance: var(--status-maintenance);
+  --color-status-maintenance-bg: var(--status-maintenance-bg);
+  --color-status-maintenance-text: var(--status-maintenance-text);
+
+  --radius-card: var(--radius-card-base);
+  --radius-control: var(--radius-control-base);
+  --radius-sm: calc(var(--radius-control-base) - 4px);
+  --radius-md: calc(var(--radius-control-base) - 2px);
+  --radius-lg: var(--radius-control-base);
+  --radius-xl: calc(var(--radius-control-base) + 4px);
+
+  --shadow-soft-sm: var(--shadow-soft-sm-base);
+  --shadow-soft-md: var(--shadow-soft-md-base);
+
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+/* Focus clavier toujours visible (accessibilité) */
+:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
