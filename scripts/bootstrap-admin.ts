@@ -7,17 +7,13 @@
  *
  * Ne journalise jamais la clé service role.
  */
-import { randomInt } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 import { z } from "zod";
 
+import { generatePassword } from "@/lib/auth/provisional-password";
 import { createSupabaseProfileRepository } from "@/lib/data/providers/supabase/profile-repository";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-const PASSWORD_LENGTH = 20;
-const PASSWORD_ALPHABET =
-  "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*-_=+";
 
 /** Arguments en ligne de commande, déjà validés. */
 export interface BootstrapAdminArgs {
@@ -69,17 +65,9 @@ export function parseArgs(argv: string[]): BootstrapAdminArgs {
   };
 }
 
-/**
- * Génère un mot de passe provisoire à partir du générateur aléatoire
- * cryptographique de Node (`crypto.randomInt`, et non `Math.random`).
- */
-export function generatePassword(length = PASSWORD_LENGTH): string {
-  let password = "";
-  for (let i = 0; i < length; i += 1) {
-    password += PASSWORD_ALPHABET[randomInt(PASSWORD_ALPHABET.length)];
-  }
-  return password;
-}
+// Le générateur vit dans `src/lib/auth/provisional-password.ts` (partagé avec
+// l'administration des utilisateurs) ; réexporté pour les tests du script.
+export { generatePassword };
 
 /** Dépendances injectables, pour pouvoir tester `bootstrapAdmin` avec un client Supabase simulé. */
 export interface BootstrapAdminDeps {
