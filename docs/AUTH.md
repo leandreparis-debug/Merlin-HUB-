@@ -46,6 +46,10 @@ Un admin peut « voir le site comme un utilisateur » (menu utilisateur ou bande
 - **Mutations par server actions** (connexion, déconnexion, changement de mot de passe, bascule de vue) : pas de route API d'authentification custom.
 - **Journal d'activité** (`ActivityLogRepository.record`, qui ne fait jamais échouer l'action) : `auth.login`, `auth.login_failed`, `auth.logout`, `auth.password_changed`, `auth.view_mode_changed`.
 
+## Blocage des sessions existantes (désactivation, réinitialisation)
+
+`getCurrentUser()` relit `profiles` **à chaque requête** : un compte désactivé est déconnecté dès sa prochaine requête (même avec une session encore valide), et un compte dont le mot de passe a été réinitialisé (`mustChangePassword = true`) est redirigé vers `/change-password`, où le **mot de passe actuel** (le nouveau provisoire) est exigé. En plus, `AccountAdminService.revokeSessions(userId)` est appelé en meilleur effort à la désactivation ; en V1 il ne révoque rien : l'API `auth.admin.signOut(jwt, scope)` de Supabase attend le JWT de la session à révoquer, pas un identifiant d'utilisateur, et n'est pas détournée. Voir `docs/ADMIN-USERS.md`.
+
 ## Implémentations
 
 | `DATA_PROVIDER`      | Implémentation                                                                                                                                                                                                                                                                                                                                 |

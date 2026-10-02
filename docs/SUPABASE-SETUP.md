@@ -33,6 +33,10 @@ Dans **Authentication** du dashboard :
 
 **Le mot de passe provisoire est communiqué hors application** (en main propre, téléphone, canal sécurisé) : Merlin n'envoie jamais de mot de passe par email. Il doit être changé à la première connexion.
 
+### Gestion des comptes par l'application (étape 6)
+
+La création et la réinitialisation de mot de passe d'un compte passent par l'**API d'administration de Supabase Auth** (`auth.admin.createUser`, `auth.admin.updateUserById`), qui utilise la clé `service_role` : elle reste côté serveur, jamais exposée au navigateur, jamais journalisée. Les comptes sont créés avec leur email confirmé et un mot de passe provisoire généré par Merlin (communiqué hors application). `ALLOWED_EMAIL_DOMAINS` (facultatif, ex. `carrefour.com`) limite les domaines acceptés à la création.
+
 ## 3. Récupérer les clés
 
 Dans **Project Settings → API** :

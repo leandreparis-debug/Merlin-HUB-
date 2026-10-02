@@ -47,6 +47,13 @@ Cette règle est imposée par ESLint (`no-restricted-imports` sur `@supabase/*`,
 - Aucune donnée d'administration n'est lue par un composant : seuls des view models sont transmis aux composants client (`src/components/admin/`).
 - Détails, règles et stratégie e2e : `docs/ADMIN-APPS.md`.
 
+### Administration des utilisateurs (étape 6)
+
+- `src/app/(app)/admin/users/` : liste, création, fiche et server actions, chacune gardée par `requireAdmin()` (layout, pages et actions).
+- `AccountAdminService` (`src/lib/auth/account-admin.ts`, fabrique `getAccountAdminService()`, implémentations Supabase et mémoire) est la **seule voie de gestion des comptes Auth** ; le mot de passe provisoire (`src/lib/auth/provisional-password.ts`) n'est jamais stocké ni journalisé.
+- `src/lib/admin/users/` : règles métier pures (`user-rules.ts`, partagées par les actions et l'interface), view models, filtres, chargeurs de données (service role, après `requireAdmin()`), journal `user.*`.
+- Détails, garde-fous et notes de migration SSO : `docs/ADMIN-USERS.md`.
+
 ### Trajectoire V1 → V2
 
 - **V1 (actuelle)** : hébergement Vercel, données et authentification via Supabase (Postgres + Supabase Auth), connexion par identifiant professionnel (email) et mot de passe.

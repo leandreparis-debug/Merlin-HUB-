@@ -29,6 +29,8 @@ Pour les données (étape 2), `DATA_PROVIDER` vaut `supabase` par défaut (voir 
 
 Authentification (étape 3) : `MEMORY_AUTH_SECRET` (secret de signature des sessions de l'auth en mémoire, dev/e2e uniquement, jamais en production ; valeur de repli de développement si absent) et `NEXT_PUBLIC_ADMIN_CONTACT_EMAIL` (facultatif, contact affiché sur la page de connexion).
 
+Utilisateurs (étape 6) : `ALLOWED_EMAIL_DOMAINS` (facultatif, domaines d'email autorisés à la création d'un compte, ex. `carrefour.com`).
+
 Catalogue (étape 4) : en mode mémoire, six applications de démonstration sont créées au démarrage (voir `docs/CATALOGUE.md`).
 
 ### Comptes de développement
@@ -85,7 +87,7 @@ Voir `docs/ARCHITECTURE.md` pour le détail des règles de dépendance entre ces
 3. ✅ Authentification (email professionnel + mot de passe, rôles utilisateur/admin, vue admin/utilisateur)
 4. ✅ Page d'accueil et catalogue d'applications (statut en ligne/hors ligne/maintenance, recherche, filtre par catégorie)
 5. ✅ Administration des applications (CRUD, ordre, visibilité, statut, journal ; `docs/ADMIN-APPS.md`)
-6. Administration des utilisateurs
+6. ✅ Administration des utilisateurs (création avec mot de passe provisoire, réinitialisation, rôle, désactivation ; `docs/ADMIN-USERS.md`)
 7. Annonces épinglables
 8. Signalements de bugs et demandes, avec suivi
 9. Journal d'activité

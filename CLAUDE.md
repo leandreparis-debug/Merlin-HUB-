@@ -44,6 +44,10 @@ DATA_PROVIDER=memory npm run dev   # développer sans Supabase (jamais en produc
 
 **Toute nouvelle page ou server action d'administration appelle `requireAdmin()` elle-même** (un layout n'est pas réexécuté à chaque navigation et ne protège jamais seul), avant tout accès à `getAdminRepositories()`. L'acteur vient de la session, jamais du formulaire. Nouvelle section = route sous `src/app/(app)/admin/` + entrée dans `ADMIN_SECTIONS` (`src/components/admin/admin-nav.tsx`). Les tests e2e qui modifient des données vont dans `e2e/mutations.spec.ts` (projet `mutations`, nettoyage garanti). Détails : `docs/ADMIN-APPS.md`.
 
+## Gestion des comptes (étape 6)
+
+`AccountAdminService` (`getAccountAdminService()`) est la **seule voie de gestion des comptes Auth** : à n'appeler qu'après `requireAdmin()`. Le mot de passe provisoire n'est **jamais** stocké, journalisé, placé dans une URL ni renvoyé par un GET : il n'existe que dans le résultat d'une server action, affiché une seule fois. Les règles `src/lib/admin/users/user-rules.ts` sont revérifiées côté serveur (cible et `countActiveAdmins()` relus). Toute page ou action admin appelle `requireAdmin()` elle-même. Détails : `docs/ADMIN-USERS.md`.
+
 ## Catalogue (étape 4)
 
 Les composants client du catalogue ne reçoivent que des view models sérialisables (`src/lib/catalogue/view-model.ts`), jamais un repository ni un `App` brut. Liens externes : toujours via `safeExternalUrl` (`http:`/`https:` uniquement), `target="_blank"` + `rel="noopener noreferrer"`. Icônes : registre explicite `src/lib/catalogue/icons.ts` (pas d'import global de `lucide-react`). Détails : `docs/CATALOGUE.md`.
@@ -65,6 +69,7 @@ Les composants client du catalogue ne reçoivent que des view models sérialisab
 - ✅ **Étape 3** — Authentification : `AuthService` (implémentations Supabase et mémoire), connexion/déconnexion, changement de mot de passe forcé, politique de mot de passe, `requireUser`/`requireAdmin`, middleware, rôles, bascule vue admin/utilisateur, menu utilisateur, page `/admin` provisoire, journal d'authentification, e2e (serveur `next dev` en mode mémoire), `docs/AUTH.md`.
 - ✅ **Étape 4** — Page d'accueil et catalogue : `loadCatalogue()` (view models sérialisables, `listVisible()` pour tous), cartes d'applications (statut, « Nouveau », « Bientôt disponible », liens externes validés), recherche insensible aux accents et filtre par catégorie reflétés dans l'URL, registre d'icônes `lucide-react`, apps de démonstration en mémoire, garde-fou `PROTECTED_PATH_PREFIXES`, `docs/CATALOGUE.md`.
 - ✅ **Étape 5** — Administration des applications : `/admin` (tableau de bord, liste, création/édition avec aperçu, ordre, masquage, statut + journal, suppression confirmée), actions serveur gardées par `requireAdmin()`, journal `app.*`, projet e2e `mutations`, `docs/ADMIN-APPS.md`.
-- ⏭️ **Étape 6** — Administration des utilisateurs (création, réinitialisation de mot de passe, désactivation, rôle).
+- ✅ **Étape 6** — Administration des utilisateurs : `/admin/users` (liste, création avec mot de passe provisoire affiché une seule fois, réinitialisation, rôle, désactivation / réactivation), `AccountAdminService` (Supabase et mémoire, compensation), règles `user-rules` (pas d'auto-sabotage, dernier admin actif), `ALLOWED_EMAIL_DOMAINS`, journal `user.*`, `docs/ADMIN-USERS.md`.
+- ⏭️ **Étape 7** — Annonces.
 
 _Mettre à jour cette liste à la fin de chaque étape._
