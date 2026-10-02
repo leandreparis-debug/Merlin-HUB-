@@ -2,7 +2,9 @@ import fs from "node:fs";
 
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 3000;
+// Port dédié aux e2e : le store mémoire est propre au process, on démarre
+// toujours un serveur neuf (voir `webServer`) sans toucher à un `npm run dev`.
+const PORT = 3100;
 const baseURL = `http://localhost:${PORT}`;
 
 // Certains environnements d'exécution fournissent un Chromium pré-installé à
@@ -19,6 +21,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env["CI"],
   retries: process.env["CI"] ? 2 : 0,
+  // Compilation à la demande de `next dev` : marge pour les premières requêtes.
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
   reporter: "html",
   use: {
     baseURL,
@@ -48,10 +53,17 @@ export default defineConfig({
       },
     },
   ],
+  // `next dev` et non `next start` : l'authentification en mémoire
+  // (DATA_PROVIDER=memory) est volontairement interdite en production, donc
+  // en NODE_ENV=production. Aucune variable Supabase n'est nécessaire.
   webServer: {
-    command: "npm run build && npm run start",
-    url: baseURL,
-    reuseExistingServer: !process.env["CI"],
+    command: `npm run dev -- --port ${PORT}`,
+    url: `${baseURL}/api/health`,
+    reuseExistingServer: false,
     timeout: 120_000,
+    env: {
+      DATA_PROVIDER: "memory",
+      MEMORY_AUTH_SECRET: "e2e-only-secret-not-for-production",
+    },
   },
 });

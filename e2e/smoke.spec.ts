@@ -1,10 +1,12 @@
 import { expect, test } from "@playwright/test";
 
+import { loginAs } from "./helpers/auth";
+
 test.describe("page d'accueil", () => {
   test("se charge, affiche le titre, sans défilement horizontal, avec la bonne grille", async ({
     page,
   }, testInfo) => {
-    await page.goto("/");
+    await loginAs(page, "user");
 
     await expect(
       page.getByRole("heading", { name: "Bienvenue sur Merlin" }),
@@ -39,6 +41,9 @@ test.describe("page d'accueil", () => {
 });
 
 test("le lien d'évitement reçoit le focus au premier Tab", async ({ page }) => {
+  await loginAs(page, "user");
+  // Rechargement complet : après la navigation douce, le point de départ du
+  // focus séquentiel n'est plus en haut de la page.
   await page.goto("/");
   await page.keyboard.press("Tab");
 
@@ -64,7 +69,7 @@ test("/api/health répond 200 avec le statut ok", async ({ request }) => {
   expect(body.app).toBe("merlin");
 });
 
-test("une URL inexistante affiche la page 404 personnalisée", async ({
+test("une URL inexistante affiche la page 404 personnalisée, sans connexion", async ({
   page,
 }) => {
   const response = await page.goto("/une-page-qui-n-existe-pas");
