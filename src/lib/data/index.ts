@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createDemoApps } from "@/lib/data/providers/memory/demo-apps";
 import {
   createMemoryRepositories,
   type MemoryRepositories,
@@ -29,7 +30,11 @@ export function getMemoryRepositories(): MemoryRepositories {
         "Configurez un projet Supabase (voir docs/SUPABASE-SETUP.md).",
     );
   }
-  globalForMemory.__merlinMemoryRepositories ??= createMemoryRepositories();
+  globalForMemory.__merlinMemoryRepositories ??= createMemoryRepositories({
+    // Jeu d'applications de démonstration (dev/e2e) : jamais en production,
+    // le garde-fou ci-dessus ayant déjà levé une erreur.
+    apps: createDemoApps(),
+  });
   return globalForMemory.__merlinMemoryRepositories;
 }
 
