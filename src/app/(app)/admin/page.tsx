@@ -4,6 +4,7 @@ import { StatusEventList } from "@/components/admin/status-event-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { loadAdminDashboard } from "@/lib/admin/apps/data";
+import { loadUserSummary } from "@/lib/admin/users/data";
 import { requireAdmin } from "@/lib/auth";
 import { statusLabel } from "@/lib/catalogue/status";
 import type { AppStatus } from "@/lib/data/types";
@@ -36,6 +37,7 @@ function Tile({
 export default async function AdminDashboardPage() {
   await requireAdmin();
   const { summary, events } = await loadAdminDashboard();
+  const users = await loadUserSummary();
 
   return (
     <div className="space-y-10">
@@ -70,6 +72,32 @@ export default async function AdminDashboardPage() {
           <Tile
             label="Sans URL (« Bientôt disponible »)"
             value={summary.withoutUrl}
+          />
+        </div>
+      </section>
+
+      <section aria-labelledby="users-tiles-title" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2
+            id="users-tiles-title"
+            className="text-foreground text-xl font-semibold"
+          >
+            Utilisateurs
+          </h2>
+          <Button asChild variant="outline" className="min-h-11">
+            <Link href="/admin/users">Gérer les utilisateurs</Link>
+          </Button>
+        </div>
+        <div
+          data-testid="user-tiles"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <Tile label="Comptes" value={users.total} />
+          <Tile label="Comptes actifs" value={users.active} />
+          <Tile label="Admins actifs" value={users.activeAdmins} />
+          <Tile
+            label="Première connexion en attente"
+            value={users.pendingFirstLogin}
           />
         </div>
       </section>
