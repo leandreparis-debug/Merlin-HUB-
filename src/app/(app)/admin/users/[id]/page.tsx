@@ -101,10 +101,7 @@ export default async function AdminUserPage({
         <h3 id="access-title" className="text-lg font-semibold">
           Accès
         </h3>
-        <UserAccessForm
-          key={`${user.isActive}-${user.updatedAt}`}
-          user={user}
-        />
+        <UserAccessForm user={user} />
       </section>
 
       <section aria-labelledby="password-title" className="space-y-4">
