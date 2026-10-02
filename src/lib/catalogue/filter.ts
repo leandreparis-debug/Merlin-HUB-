@@ -71,7 +71,6 @@ export function parseCatalogueParams(
   categories: readonly string[],
 ): CatalogueFilters {
   const q = firstValue(params.q)
-    // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u001f\u007f]/g, " ")
     .slice(0, MAX_QUERY_LENGTH);
   const cat = firstValue(params.cat);
