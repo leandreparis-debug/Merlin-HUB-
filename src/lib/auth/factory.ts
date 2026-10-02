@@ -9,7 +9,7 @@ import { seedDevAccounts } from "@/lib/auth/providers/memory/seed";
 import { createSupabaseAuthService } from "@/lib/auth/providers/supabase";
 import type { AuthService } from "@/lib/auth/service";
 import { getAdminRepositories, getMemoryRepositories } from "@/lib/data";
-import { NotFoundError } from "@/lib/data/errors";
+import { isNotFoundError } from "@/lib/data/errors";
 import { getServerEnv } from "@/lib/env";
 import { createUserClient } from "@/lib/supabase/server";
 
@@ -75,7 +75,7 @@ export function getAuthService(): AuthService {
       try {
         return await getAdminRepositories().profiles.getById(userId);
       } catch (error) {
-        if (error instanceof NotFoundError) return null;
+        if (isNotFoundError(error)) return null;
         throw error;
       }
     },

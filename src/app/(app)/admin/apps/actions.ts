@@ -21,9 +21,9 @@ import { sortApps } from "@/lib/catalogue/filter";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminRepositories } from "@/lib/data";
 import {
-  ConflictError,
-  NotFoundError,
-  ValidationError,
+  isConflictError,
+  isNotFoundError,
+  isValidationError,
 } from "@/lib/data/errors";
 import type { App, UpdateAppInput } from "@/lib/data/types";
 
@@ -44,7 +44,7 @@ function redirectGone(): never {
 
 /** Traduit une erreur de repository en résultat français sans détail interne. */
 function failure(error: unknown): ActionResult {
-  if (error instanceof ConflictError) {
+  if (isConflictError(error)) {
     return {
       ok: false,
       message: "Le formulaire contient des erreurs.",
@@ -53,7 +53,7 @@ function failure(error: unknown): ActionResult {
       },
     };
   }
-  if (error instanceof ValidationError) {
+  if (isValidationError(error)) {
     const fieldErrors: FieldErrors = {};
     for (const issue of error.issues) {
       if (!(issue.path in fieldErrors)) fieldErrors[issue.path] = issue.message;
@@ -146,7 +146,7 @@ export async function updateAppAction(
   try {
     existing = await repositories.apps.getById(id);
   } catch (error) {
-    if (error instanceof NotFoundError) redirectGone();
+    if (isNotFoundError(error)) redirectGone();
     return failure(error);
   }
 
@@ -168,7 +168,7 @@ export async function updateAppAction(
   try {
     await repositories.apps.update(id, patch);
   } catch (error) {
-    if (error instanceof NotFoundError) redirectGone();
+    if (isNotFoundError(error)) redirectGone();
     return failure(error);
   }
 
@@ -218,7 +218,7 @@ export async function setAppVisibilityAction(
         : `« ${app.name} » est de nouveau visible sur l'accueil.`,
     };
   } catch (error) {
-    if (error instanceof NotFoundError) redirectGone();
+    if (isNotFoundError(error)) redirectGone();
     return failure(error);
   }
 }
@@ -276,7 +276,7 @@ export async function moveAppAction(
       }
     }
   } catch (error) {
-    if (error instanceof NotFoundError) redirectGone();
+    if (isNotFoundError(error)) redirectGone();
     return failure(error);
   }
   // Hors du try : `redirect()` lève une exception qui ne doit pas être capturée.
@@ -328,7 +328,7 @@ export async function setAppStatusAction(
         : "Statut inchangé : seul le message a été mis à jour.",
     };
   } catch (error) {
-    if (error instanceof NotFoundError) redirectGone();
+    if (isNotFoundError(error)) redirectGone();
     return failure(error);
   }
 }
@@ -352,7 +352,7 @@ export async function deleteAppAction(
   try {
     app = await repositories.apps.getById(id);
   } catch (error) {
-    if (error instanceof NotFoundError) redirectGone();
+    if (isNotFoundError(error)) redirectGone();
     return failure(error);
   }
 
@@ -366,7 +366,7 @@ export async function deleteAppAction(
   try {
     await repositories.apps.delete(id);
   } catch (error) {
-    if (error instanceof NotFoundError) redirectGone();
+    if (isNotFoundError(error)) redirectGone();
     return failure(error);
   }
 

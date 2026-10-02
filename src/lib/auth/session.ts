@@ -14,7 +14,7 @@ import { safeRedirectPath } from "@/lib/auth/redirect";
 import { sessionUserFromProfile } from "@/lib/auth/service";
 import type { SessionUser } from "@/lib/auth/types";
 import { isAdminView } from "@/lib/auth/view-mode";
-import { NotFoundError } from "@/lib/data/errors";
+import { isNotFoundError } from "@/lib/data/errors";
 import { getUserRepositories } from "@/lib/data";
 
 /** Chemin + query de la requête courante (posés par le middleware), sûrs pour `next`. */
@@ -41,7 +41,7 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
     ).profiles.getById(userId);
     if (profile.isActive) return sessionUserFromProfile(profile);
   } catch (error) {
-    if (!(error instanceof NotFoundError)) throw error;
+    if (!isNotFoundError(error)) throw error;
   }
 
   await auth.signOut().catch(() => undefined);

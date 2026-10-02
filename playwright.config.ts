@@ -16,6 +16,8 @@ const executablePath = fs.existsSync(PREINSTALLED_CHROMIUM)
   ? PREINSTALLED_CHROMIUM
   : undefined;
 
+const MUTATIONS_SPEC = /mutations\.spec\.ts$/;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -33,6 +35,7 @@ export default defineConfig({
   projects: [
     {
       name: "mobile",
+      testIgnore: MUTATIONS_SPEC,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 375, height: 812 },
@@ -40,6 +43,7 @@ export default defineConfig({
     },
     {
       name: "tablet",
+      testIgnore: MUTATIONS_SPEC,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 768, height: 1024 },
@@ -47,6 +51,21 @@ export default defineConfig({
     },
     {
       name: "desktop",
+      testIgnore: MUTATIONS_SPEC,
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
+      // Tests qui modifient des données (apps créées, masquées, supprimées…) :
+      // démarre seulement APRÈS les projets de lecture (les tests du catalogue
+      // attendent exactement 5 cartes), en série, sur desktop uniquement.
+      // Chaque test nettoie ce qu'il crée (voir e2e/mutations.spec.ts).
+      name: "mutations",
+      testMatch: MUTATIONS_SPEC,
+      fullyParallel: false,
+      dependencies: ["mobile", "tablet", "desktop"],
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 900 },

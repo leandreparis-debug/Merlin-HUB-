@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-import { AppsTable, LIST_NOTICES } from "@/components/admin/apps-table";
+import { AppsTable } from "@/components/admin/apps-table";
 import { Button } from "@/components/ui/button";
+import { LIST_NOTICES } from "@/lib/admin/apps/notices";
 import { loadAdminAppRows } from "@/lib/admin/apps/data";
 import { requireAdmin } from "@/lib/auth";
 

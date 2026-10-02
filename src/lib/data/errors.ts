@@ -74,3 +74,25 @@ export function validationErrorFromZod(
   }));
   return new ValidationError(message, issues);
 }
+
+// Contrôles par nom plutôt que `instanceof` : en développement, Next.js peut
+// charger ce module en plusieurs exemplaires (couches serveur distinctes), et
+// `instanceof` échouerait alors sur une erreur pourtant de la bonne classe.
+function hasName(error: unknown, name: string): boolean {
+  return error instanceof Error && error.name === name;
+}
+
+/** Vrai pour une {@link NotFoundError} (robuste aux doublons de module). */
+export function isNotFoundError(error: unknown): error is NotFoundError {
+  return error instanceof NotFoundError || hasName(error, "NotFoundError");
+}
+
+/** Vrai pour une {@link ConflictError} (robuste aux doublons de module). */
+export function isConflictError(error: unknown): error is ConflictError {
+  return error instanceof ConflictError || hasName(error, "ConflictError");
+}
+
+/** Vrai pour une {@link ValidationError} (robuste aux doublons de module). */
+export function isValidationError(error: unknown): error is ValidationError {
+  return error instanceof ValidationError || hasName(error, "ValidationError");
+}

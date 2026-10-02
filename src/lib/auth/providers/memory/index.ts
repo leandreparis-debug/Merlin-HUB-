@@ -15,7 +15,7 @@ import {
 } from "@/lib/auth/providers/memory/session-cookie";
 import { sessionUserFromProfile, type AuthService } from "@/lib/auth/service";
 import type { SignInResult, UpdatePasswordResult } from "@/lib/auth/types";
-import { NotFoundError } from "@/lib/data/errors";
+import { isNotFoundError } from "@/lib/data/errors";
 import type { MemoryProfileRepository } from "@/lib/data/providers/memory/profile-repository";
 import type { Profile, Role } from "@/lib/data/types";
 
@@ -64,7 +64,7 @@ export function createMemoryAuthService(
     try {
       return await deps.profiles.getByEmail(email);
     } catch (error) {
-      if (error instanceof NotFoundError) return null;
+      if (isNotFoundError(error)) return null;
       throw error;
     }
   }

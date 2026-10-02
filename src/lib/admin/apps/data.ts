@@ -10,7 +10,7 @@ import {
   type DashboardSummary,
   type StatusEventRow,
 } from "@/lib/admin/apps/view-models";
-import { NotFoundError } from "@/lib/data/errors";
+import { isNotFoundError } from "@/lib/data/errors";
 import { getAdminRepositories } from "@/lib/data";
 import { z } from "zod";
 
@@ -85,7 +85,7 @@ export async function loadAdminAppDetail(
       ),
     };
   } catch (error) {
-    if (error instanceof NotFoundError) return null;
+    if (isNotFoundError(error)) return null;
     throw error;
   }
 }

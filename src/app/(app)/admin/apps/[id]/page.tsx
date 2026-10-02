@@ -91,7 +91,6 @@ export default async function AdminAppPage({
           Statut
         </h3>
         <StatusPanel
-          key={`${app.status}-${app.statusMessage}-${app.updatedAt}`}
           appId={app.id}
           status={app.status}
           message={app.statusMessage}

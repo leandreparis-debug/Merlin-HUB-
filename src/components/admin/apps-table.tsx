@@ -12,15 +12,8 @@ import {
   moveAppAction,
   setAppVisibilityAction,
 } from "@/app/(app)/admin/apps/actions";
-import { APP_GONE_MESSAGE } from "@/lib/admin/apps/action-result";
 import type { AdminAppRow } from "@/lib/admin/apps/view-models";
 import { cn } from "@/lib/utils";
-
-/** Messages affichables d'après le paramètre `?notice=` de la liste. */
-export const LIST_NOTICES: Record<string, string> = {
-  deleted: "L'application a été supprimée.",
-  gone: APP_GONE_MESSAGE,
-};
 
 /**
  * Liste d'administration : toutes les apps (masquées incluses), avec monter /
@@ -72,7 +65,7 @@ export function AppsTable({
         role="region"
         aria-label="Liste des applications"
         tabIndex={0}
-        className="border-border bg-card focus-visible:ring-ring/50 overflow-x-auto rounded-lg border outline-none focus-visible:ring-[3px]"
+        className="border-border bg-card focus-visible:ring-ring/50 relative overflow-x-auto rounded-lg border outline-none focus-visible:ring-[3px]"
       >
         <table className="w-full min-w-[56rem] text-left text-sm">
           <caption className="sr-only">
