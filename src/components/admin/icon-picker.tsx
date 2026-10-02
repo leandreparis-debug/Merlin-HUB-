@@ -32,7 +32,7 @@ export function IconPicker({
           <label
             key={name}
             title={name}
-            className="hover:bg-accent has-[:checked]:border-primary has-[:checked]:bg-accent has-[:checked]:text-accent-foreground has-[:focus-visible]:ring-ring/50 flex size-11 cursor-pointer items-center justify-center rounded-md border border-transparent has-[:focus-visible]:ring-[3px]"
+            className="hover:bg-accent has-[:checked]:border-primary has-[:checked]:bg-accent has-[:checked]:text-accent-foreground has-[:focus-visible]:ring-ring/50 relative flex size-11 cursor-pointer items-center justify-center rounded-md border border-transparent has-[:focus-visible]:ring-[3px]"
           >
             <input
               type="radio"

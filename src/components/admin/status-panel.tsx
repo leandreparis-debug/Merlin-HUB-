@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 
 import { Field, SELECT_CLASS } from "@/components/admin/form-field";
 import { StatusBadge } from "@/components/catalogue/status-badge";
@@ -48,7 +48,17 @@ export function StatusPanel({
         </span>
       </div>
 
-      <form action={formAction} className="max-w-xl space-y-4" noValidate>
+      <form
+        onSubmit={(event) => {
+          // Pas de `action` : évite la réinitialisation automatique du
+          // formulaire (la liste déroulante reviendrait à sa 1re option).
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          startTransition(() => formAction(data));
+        }}
+        className="max-w-xl space-y-4"
+        noValidate
+      >
         <input type="hidden" name="id" value={appId} />
 
         {state && !state.ok ? (

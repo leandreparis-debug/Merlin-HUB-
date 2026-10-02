@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { Field, SELECT_CLASS } from "@/components/admin/form-field";
 import { IconPicker } from "@/components/admin/icon-picker";
@@ -97,7 +103,19 @@ export function AppForm({
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <form ref={formRef} action={formAction} className="space-y-5" noValidate>
+      <form
+        ref={formRef}
+        onSubmit={(event) => {
+          // Pas de `action` : React réinitialiserait le formulaire (listes
+          // déroulantes comprises) après chaque envoi, ce qui désynchroniserait
+          // les contrôles de leur état.
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          startTransition(() => formAction(data));
+        }}
+        className="space-y-5"
+        noValidate
+      >
         {appId ? <input type="hidden" name="id" value={appId} /> : null}
 
         {state && !state.ok ? (

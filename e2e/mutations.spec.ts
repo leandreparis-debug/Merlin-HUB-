@@ -225,6 +225,7 @@ test("changer le statut en maintenance avec note : carte d'accueil, journal de l
     page.getByText("Statut mis à jour : Hors ligne → Maintenance."),
   ).toBeVisible();
 
+  await expect(page.getByLabel("Nouveau statut")).toHaveValue("maintenance");
   const journal = page.getByTestId("status-events");
   await expect(journal).toContainText("Hors ligne → Maintenance");
   await expect(journal).toContainText("Opération de maintenance e2e");

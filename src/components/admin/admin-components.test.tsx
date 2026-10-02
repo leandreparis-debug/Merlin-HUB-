@@ -310,6 +310,23 @@ describe("StatusPanel", () => {
     ).toBeEnabled();
   });
 
+  it("conserve le statut choisi après l'envoi (pas de réinitialisation du formulaire)", async () => {
+    actions.setAppStatusAction.mockResolvedValueOnce({
+      ok: true,
+      message: "Statut mis à jour : En ligne → Maintenance.",
+    });
+    render(<StatusPanel {...props} />);
+    fireEvent.change(screen.getByLabelText("Nouveau statut"), {
+      target: { value: "maintenance" },
+    });
+    await submit("Mettre à jour le statut");
+    expect(screen.getByLabelText("Nouveau statut")).toHaveValue("maintenance");
+    expect(actions.setAppStatusAction).toHaveBeenCalledTimes(1);
+    const sent = actions.setAppStatusAction.mock.calls[0]?.[1] as FormData;
+    expect(sent.get("status")).toBe("maintenance");
+    expect(sent.get("id")).toBe("a");
+  });
+
   it("affiche l'erreur de note trop longue sur le champ", async () => {
     actions.setAppStatusAction.mockResolvedValueOnce({
       ok: false,
