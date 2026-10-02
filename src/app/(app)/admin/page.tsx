@@ -1,19 +1,89 @@
-import { PageContainer } from "@/components/layout/page-container";
-import { requireAdmin } from "@/lib/auth";
+import Link from "next/link";
 
-/** Page provisoire « Espace administration », remplacée à l'étape 5. Réservée aux admins en vue admin. */
-export default async function AdminPage() {
+import { StatusEventList } from "@/components/admin/status-event-list";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { loadAdminDashboard } from "@/lib/admin/apps/data";
+import { requireAdmin } from "@/lib/auth";
+import { statusLabel } from "@/lib/catalogue/status";
+import type { AppStatus } from "@/lib/data/types";
+
+const STATUSES: AppStatus[] = ["online", "offline", "maintenance"];
+
+function Tile({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: number;
+  detail?: string;
+}) {
+  return (
+    <Card className="gap-1 py-4">
+      <CardContent>
+        <p className="text-muted-foreground text-sm">{label}</p>
+        <p className="text-foreground text-3xl font-bold">{value}</p>
+        {detail ? (
+          <p className="text-muted-foreground text-xs">{detail}</p>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Tableau de bord d'administration : synthèse du catalogue et derniers changements de statut. */
+export default async function AdminDashboardPage() {
   await requireAdmin();
+  const { summary, events } = await loadAdminDashboard();
 
   return (
-    <PageContainer className="py-10 sm:py-14">
-      <h1 className="text-foreground text-3xl font-bold">
-        Espace administration
-      </h1>
-      <p className="text-muted-foreground mt-3 max-w-2xl">
-        La gestion des applications et des utilisateurs arrive aux prochaines
-        étapes.
-      </p>
-    </PageContainer>
+    <div className="space-y-10">
+      <section aria-labelledby="dashboard-title" className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2
+            id="dashboard-title"
+            className="text-foreground text-xl font-semibold"
+          >
+            Tableau de bord
+          </h2>
+          <Button asChild className="min-h-11">
+            <Link href="/admin/apps/new">Ajouter une application</Link>
+          </Button>
+        </div>
+        <div
+          data-testid="dashboard-tiles"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <Tile
+            label="Applications"
+            value={summary.total}
+            detail={`${summary.visible} visible(s), ${summary.hidden} masquée(s)`}
+          />
+          {STATUSES.map((status) => (
+            <Tile
+              key={status}
+              label={statusLabel(status)}
+              value={summary.byStatus[status]}
+            />
+          ))}
+          <Tile
+            label="Sans URL (« Bientôt disponible »)"
+            value={summary.withoutUrl}
+          />
+        </div>
+      </section>
+
+      <section aria-labelledby="events-title" className="space-y-4">
+        <h2 id="events-title" className="text-foreground text-xl font-semibold">
+          Derniers changements de statut
+        </h2>
+        <StatusEventList
+          events={events}
+          showApp
+          emptyMessage="Aucun changement de statut enregistré pour le moment."
+        />
+      </section>
+    </div>
   );
 }

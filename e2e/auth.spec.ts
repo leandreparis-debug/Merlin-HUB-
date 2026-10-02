@@ -183,7 +183,7 @@ test.describe("rôles et vue admin/utilisateur", () => {
     await loginAs(page, "admin");
     await page.goto("/admin");
     await expect(
-      page.getByRole("heading", { name: "Espace administration" }),
+      page.getByRole("heading", { name: "Administration", exact: true }),
     ).toBeVisible();
   });
 
@@ -210,7 +210,7 @@ test.describe("rôles et vue admin/utilisateur", () => {
     await expect(page.getByTestId("view-mode-banner")).toHaveCount(0);
     await page.goto("/admin");
     await expect(
-      page.getByRole("heading", { name: "Espace administration" }),
+      page.getByRole("heading", { name: "Administration", exact: true }),
     ).toBeVisible();
   });
 });

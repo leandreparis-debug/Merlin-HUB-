@@ -61,3 +61,16 @@ export function updatedLabel(iso: string, now: Date): string {
   const relative = formatRelativeTime(iso, now);
   return relative ? `mis à jour ${relative}` : "";
 }
+
+const parisFormat = new Intl.DateTimeFormat("fr-FR", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "Europe/Paris",
+});
+
+/** Date absolue lisible au fuseau Europe/Paris (ex. « 2 oct. 2026, 14:30 »), formatée côté serveur. */
+export function formatAbsoluteParis(iso: string): string {
+  const timestamp = Date.parse(iso);
+  if (Number.isNaN(timestamp)) return "";
+  return plain(parisFormat.format(new Date(timestamp)));
+}
