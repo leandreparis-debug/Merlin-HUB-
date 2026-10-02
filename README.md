@@ -29,6 +29,8 @@ Pour les données (étape 2), `DATA_PROVIDER` vaut `supabase` par défaut (voir 
 
 Authentification (étape 3) : `MEMORY_AUTH_SECRET` (secret de signature des sessions de l'auth en mémoire, dev/e2e uniquement, jamais en production ; valeur de repli de développement si absent) et `NEXT_PUBLIC_ADMIN_CONTACT_EMAIL` (facultatif, contact affiché sur la page de connexion).
 
+Catalogue (étape 4) : en mode mémoire, six applications de démonstration sont créées au démarrage (voir `docs/CATALOGUE.md`).
+
 ### Comptes de développement
 
 Avec `DATA_PROVIDER=memory npm run dev`, quatre comptes **factices** sont disponibles (jamais utilisables hors dev) : `admin@example.test` / `Admin-Password-123`, `user@example.test` / `User-Password-123`, `nouveau@example.test` / `Temp-Password-1234` (doit changer son mot de passe), `desactive@example.test` / `Disabled-Pass-123` (compte désactivé). Voir `docs/AUTH.md`.
@@ -81,7 +83,7 @@ Voir `docs/ARCHITECTURE.md` pour le détail des règles de dépendance entre ces
 1. ✅ Initialisation du projet, outillage, design system, layout
 2. ✅ Base de données et couche d'abstraction (migrations SQL, RLS, repositories Supabase + mémoire)
 3. ✅ Authentification (email professionnel + mot de passe, rôles utilisateur/admin, vue admin/utilisateur)
-4. Page d'accueil et catalogue d'applications (statut en ligne/hors ligne/maintenance, journal des changements)
+4. ✅ Page d'accueil et catalogue d'applications (statut en ligne/hors ligne/maintenance, recherche, filtre par catégorie)
 5. Administration des applications
 6. Administration des utilisateurs
 7. Annonces épinglables

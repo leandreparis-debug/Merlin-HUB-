@@ -33,6 +33,13 @@ Cette règle est imposée par ESLint (`no-restricted-imports` sur `@supabase/*`,
 - Le middleware (`src/middleware.ts`) ne fait que rafraîchir la session et rediriger les non-connectés (UX) ; **l'autorisation réelle est refaite côté serveur**. Toute nouvelle page ou action protégée appelle `requireUser()` ou `requireAdmin()`.
 - Détails, modèle de sécurité et notes de migration SSO : `docs/AUTH.md`.
 
+### Catalogue (étape 4)
+
+- `src/app/(app)/(home)/page.tsx` : accueil protégé ; `src/lib/catalogue/data.ts` lit `listVisible()` via `getUserRepositories()` (RLS) et produit des view models sérialisables (`src/lib/catalogue/view-model.ts`) ; `CatalogueView` (composant client) filtre la liste déjà chargée et reflète `?q=`/`?cat=` dans l'URL.
+- Registre d'icônes explicite (`src/lib/catalogue/icons.ts`), liens externes validés (`external-url.ts`), dates relatives calculées côté serveur (`status.ts`).
+- Garde-fou : tout nouveau segment de premier niveau de `src/app/(app)` doit figurer dans `PROTECTED_PATH_PREFIXES` (test `protected-paths.test.ts`).
+- Détails : `docs/CATALOGUE.md`.
+
 ### Trajectoire V1 → V2
 
 - **V1 (actuelle)** : hébergement Vercel, données et authentification via Supabase (Postgres + Supabase Auth), connexion par identifiant professionnel (email) et mot de passe.

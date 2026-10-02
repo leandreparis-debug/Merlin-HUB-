@@ -38,7 +38,11 @@ DATA_PROVIDER=memory npm run dev   # développer sans Supabase (jamais en produc
 
 ## Règle d'autorisation (étape 3)
 
-**Toute nouvelle page ou server action protégée appelle `requireUser()` (ou `requireAdmin()` pour l'administration) côté serveur.** Le middleware ne sert qu'au confort (refresh de session, redirection UX) et ne remplace jamais ce contrôle. Rôle, `isActive` et `mustChangePassword` se lisent dans `profiles`, jamais dans le JWT. L'identité se vérifie avec `getUser()`, jamais `getSession()`. La vue admin/utilisateur (cookie `merlin_view`) est cosmétique : elle ne donne aucun droit. Détails : `docs/AUTH.md`. Ajouter toute nouvelle route de premier niveau à `PROTECTED_PATH_PREFIXES` (`src/lib/auth/constants.ts`).
+**Toute nouvelle page ou server action protégée appelle `requireUser()` (ou `requireAdmin()` pour l'administration) côté serveur.** Le middleware ne sert qu'au confort (refresh de session, redirection UX) et ne remplace jamais ce contrôle. Rôle, `isActive` et `mustChangePassword` se lisent dans `profiles`, jamais dans le JWT. L'identité se vérifie avec `getUser()`, jamais `getSession()`. La vue admin/utilisateur (cookie `merlin_view`) est cosmétique : elle ne donne aucun droit. Détails : `docs/AUTH.md`. **Toute nouvelle route de premier niveau protégée doit être ajoutée à `PROTECTED_PATH_PREFIXES`** (`src/lib/auth/constants.ts`) : le test `src/lib/auth/protected-paths.test.ts` parcourt `src/app/(app)` et échoue si un segment n'est pas couvert.
+
+## Catalogue (étape 4)
+
+Les composants client du catalogue ne reçoivent que des view models sérialisables (`src/lib/catalogue/view-model.ts`), jamais un repository ni un `App` brut. Liens externes : toujours via `safeExternalUrl` (`http:`/`https:` uniquement), `target="_blank"` + `rel="noopener noreferrer"`. Icônes : registre explicite `src/lib/catalogue/icons.ts` (pas d'import global de `lucide-react`). Détails : `docs/CATALOGUE.md`.
 
 ## Rappels
 
@@ -55,6 +59,7 @@ DATA_PROVIDER=memory npm run dev   # développer sans Supabase (jamais en produc
 - ✅ **Étape 2** — Base de données et couche d'abstraction : migrations SQL (schéma, RLS, fonctions `set_app_status`/`reorder_apps`), types de domaine et schémas zod, interfaces de repository, implémentations Supabase et mémoire, fabrique (`getUserRepositories`/`getAdminRepositories`), règle ESLint de frontière, scripts (`db:bootstrap-admin`, `db:bundle`), seed de développement, tests (contrats, mappers, traduction d'erreurs, validation PGlite), `docs/DATA-MODEL.md` et `docs/SUPABASE-SETUP.md`. Les repositories `AnnouncementRepository` et `ReportRepository` ne sont que des interfaces à ce stade (implémentations aux étapes 7 et 8).
 
 - ✅ **Étape 3** — Authentification : `AuthService` (implémentations Supabase et mémoire), connexion/déconnexion, changement de mot de passe forcé, politique de mot de passe, `requireUser`/`requireAdmin`, middleware, rôles, bascule vue admin/utilisateur, menu utilisateur, page `/admin` provisoire, journal d'authentification, e2e (serveur `next dev` en mode mémoire), `docs/AUTH.md`.
-- ⏭️ **Étape 4** — Page d'accueil et catalogue d'applications.
+- ✅ **Étape 4** — Page d'accueil et catalogue : `loadCatalogue()` (view models sérialisables, `listVisible()` pour tous), cartes d'applications (statut, « Nouveau », « Bientôt disponible », liens externes validés), recherche insensible aux accents et filtre par catégorie reflétés dans l'URL, registre d'icônes `lucide-react`, apps de démonstration en mémoire, garde-fou `PROTECTED_PATH_PREFIXES`, `docs/CATALOGUE.md`.
+- ⏭️ **Étape 5** — Administration des applications (CRUD, réordonnancement, masquage, changement de statut).
 
 _Mettre à jour cette liste à la fin de chaque étape._
