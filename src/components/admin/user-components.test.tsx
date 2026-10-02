@@ -158,7 +158,7 @@ describe("ProvisionalPasswordPanel", () => {
       screen.getByRole("button", { name: "Copier le mot de passe" }),
     );
     await waitFor(() => expect(writeText).toHaveBeenCalledWith(PASSWORD));
-    const feedback = screen.getByText("Mot de passe copié.");
+    const feedback = await screen.findByText("Mot de passe copié.");
     expect(feedback).toHaveAttribute("aria-live", "polite");
 
     fireEvent.click(
