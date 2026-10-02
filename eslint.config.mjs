@@ -56,6 +56,7 @@ const eslintConfig = [
     files: [
       "src/lib/data/**/*.{ts,tsx}",
       "src/lib/supabase/**/*.{ts,tsx}",
+      "src/lib/auth/**/*.{ts,tsx}",
       "scripts/**/*.{ts,tsx}",
       "**/*.test.{ts,tsx}",
       "supabase/**/*.{ts,tsx}",

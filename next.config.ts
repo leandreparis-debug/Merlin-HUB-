@@ -18,6 +18,13 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      {
+        // Pages authentifiées : jamais mises en cache (ni navigateur, ni
+        // bouton Retour après déconnexion). Hors assets statiques.
+        source:
+          "/((?!_next/static|_next/image|brand/|favicon.ico|robots.txt).*)",
+        headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }],
+      },
     ];
   },
 };
