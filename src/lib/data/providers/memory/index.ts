@@ -7,10 +7,16 @@ import {
   createMemoryStore,
   type MemoryStoreSeed,
 } from "@/lib/data/providers/memory/store";
+import type { MemoryProfileRepository } from "@/lib/data/providers/memory/profile-repository";
 import type { Repositories } from "@/lib/data/repositories";
 
 export type { MemoryProfileRepository } from "@/lib/data/providers/memory/profile-repository";
 export type { MemoryStoreSeed } from "@/lib/data/providers/memory/store";
+
+/** {@link Repositories} de l'implémentation mémoire : `profiles` expose en plus `createForTests()`. */
+export type MemoryRepositories = Repositories & {
+  profiles: MemoryProfileRepository;
+};
 
 /**
  * Construit un ensemble de repositories en mémoire, isolé par instance (pas
@@ -18,7 +24,9 @@ export type { MemoryStoreSeed } from "@/lib/data/providers/memory/store";
  * (unicité, validation, `sortOrder` automatique, historique de statut).
  * `profiles` expose en plus `createForTests()`, réservée aux tests.
  */
-export function createMemoryRepositories(seed?: MemoryStoreSeed): Repositories {
+export function createMemoryRepositories(
+  seed?: MemoryStoreSeed,
+): MemoryRepositories {
   const store = createMemoryStore(seed);
 
   return {

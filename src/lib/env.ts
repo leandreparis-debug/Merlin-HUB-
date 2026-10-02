@@ -30,6 +30,16 @@ const publicEnvSchema = z.object({
     emptyToUndefined,
     z.string().optional(),
   ),
+  NEXT_PUBLIC_ADMIN_CONTACT_EMAIL: z.preprocess(
+    emptyToUndefined,
+    z
+      .string()
+      .email({
+        message:
+          "NEXT_PUBLIC_ADMIN_CONTACT_EMAIL doit être une adresse email valide",
+      })
+      .optional(),
+  ),
 });
 
 /**
@@ -40,7 +50,23 @@ const serverOnlyEnvSchema = z.object({
     emptyToUndefined,
     z.string().optional(),
   ),
+  MEMORY_AUTH_SECRET: z.preprocess(
+    emptyToUndefined,
+    z
+      .string()
+      .min(16, {
+        message: "MEMORY_AUTH_SECRET doit contenir au moins 16 caractères",
+      })
+      .optional(),
+  ),
 });
+
+/**
+ * Secret de signature des sessions de l'authentification en mémoire, utilisé
+ * uniquement si `MEMORY_AUTH_SECRET` est absent. Valeur factice de
+ * développement : interdite en production (l'auth mémoire l'est aussi).
+ */
+export const DEV_MEMORY_AUTH_SECRET = "merlin-dev-only-memory-auth-secret";
 
 const serverEnvSchema = publicEnvSchema.merge(serverOnlyEnvSchema);
 
@@ -84,6 +110,8 @@ export function getPublicEnv(): PublicEnv {
     NEXT_PUBLIC_APP_URL: process.env["NEXT_PUBLIC_APP_URL"],
     NEXT_PUBLIC_SUPABASE_URL: process.env["NEXT_PUBLIC_SUPABASE_URL"],
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+    NEXT_PUBLIC_ADMIN_CONTACT_EMAIL:
+      process.env["NEXT_PUBLIC_ADMIN_CONTACT_EMAIL"],
   });
 
   if (!result.success) {
@@ -108,7 +136,10 @@ export function getEnv(): ServerEnv {
     NEXT_PUBLIC_APP_URL: process.env["NEXT_PUBLIC_APP_URL"],
     NEXT_PUBLIC_SUPABASE_URL: process.env["NEXT_PUBLIC_SUPABASE_URL"],
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+    NEXT_PUBLIC_ADMIN_CONTACT_EMAIL:
+      process.env["NEXT_PUBLIC_ADMIN_CONTACT_EMAIL"],
     SUPABASE_SERVICE_ROLE_KEY: process.env["SUPABASE_SERVICE_ROLE_KEY"],
+    MEMORY_AUTH_SECRET: process.env["MEMORY_AUTH_SECRET"],
   });
 
   if (!result.success) {
@@ -126,7 +157,9 @@ export function getEnv(): ServerEnv {
  * variables Supabase soient renseignées et liste précisément celles qui
  * manquent, sans jamais afficher leur valeur. `getEnv()` reste inchangée et
  * ne doit pas être utilisée pour ce contrôle : elle doit rester utilisable
- * sans aucune variable Supabase (pages et tests de l'étape 1).
+ * sans aucune variable Supabase (pages et tests de l'étape 1). En mode
+ * `memory` hors production, `MEMORY_AUTH_SECRET` retombe sur un secret de
+ * développement fixe s'il n'est pas défini.
  */
 export function getServerEnv(): ServerEnvWithDataProvider {
   const base = getEnv();
@@ -158,6 +191,18 @@ export function getServerEnv(): ServerEnvWithDataProvider {
           "pour développer localement sans Supabase.",
       );
     }
+  }
+
+  if (
+    dataProvider === "memory" &&
+    !base.MEMORY_AUTH_SECRET &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    return {
+      ...base,
+      DATA_PROVIDER: dataProvider,
+      MEMORY_AUTH_SECRET: DEV_MEMORY_AUTH_SECRET,
+    };
   }
 
   return { ...base, DATA_PROVIDER: dataProvider };
