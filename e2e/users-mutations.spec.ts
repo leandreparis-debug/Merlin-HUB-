@@ -397,7 +397,8 @@ test("compte de dev « nouveau » : changement forcé du mot de passe provisoire
   await session.page
     .getByRole("button", { name: "Changer mon mot de passe" })
     .click();
-  await expect(session.page).toHaveURL("/?notice=password-changed");
+  // Le paramètre `notice` est retiré de l'URL après affichage du message.
+  await expect(session.page).toHaveURL("/");
   await expect(session.page.getByRole("status")).toContainText(
     "Votre mot de passe a bien été modifié.",
   );
