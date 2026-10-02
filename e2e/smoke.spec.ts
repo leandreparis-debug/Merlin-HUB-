@@ -9,7 +9,7 @@ test.describe("page d'accueil", () => {
     await loginAs(page, "user");
 
     await expect(
-      page.getByRole("heading", { name: "Bienvenue sur Merlin" }),
+      page.getByRole("heading", { name: "Vos applications" }),
     ).toBeVisible();
 
     const hasHorizontalScroll = await page.evaluate(
@@ -27,8 +27,8 @@ test.describe("page d'accueil", () => {
     const expectedColumnCount = expectedColumns[testInfo.project.name];
     expect(expectedColumnCount).toBeDefined();
 
-    const cards = page.getByTestId("app-grid").locator("> div");
-    await expect(cards).toHaveCount(3);
+    const cards = page.getByTestId("app-grid").locator("> li");
+    await expect(cards).toHaveCount(5);
 
     const boxes = await cards.evaluateAll((elements) =>
       elements.map((element) => element.getBoundingClientRect().top),

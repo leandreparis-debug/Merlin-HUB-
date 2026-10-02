@@ -53,7 +53,7 @@ test.describe("connexion", () => {
   }) => {
     await loginAs(page, "user");
     await expect(
-      page.getByRole("heading", { name: "Bienvenue sur Merlin" }),
+      page.getByRole("heading", { name: "Vos applications" }),
     ).toBeVisible();
   });
 
@@ -148,7 +148,7 @@ test.describe("déconnexion", () => {
     await page.goBack();
     await page.goBack().catch(() => undefined);
     await expect(
-      page.getByRole("heading", { name: "Bienvenue sur Merlin" }),
+      page.getByRole("heading", { name: "Vos applications" }),
     ).toHaveCount(0);
   });
 });
@@ -275,7 +275,7 @@ test.describe("changement de mot de passe forcé", () => {
       "Votre mot de passe a bien été modifié.",
     );
     await expect(
-      page.getByRole("heading", { name: "Bienvenue sur Merlin" }),
+      page.getByRole("heading", { name: "Vos applications" }),
     ).toBeVisible();
   });
 });

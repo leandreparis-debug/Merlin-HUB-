@@ -25,6 +25,11 @@ const longFormat = new Intl.RelativeTimeFormat("fr", {
   style: "long",
 });
 
+/** `Intl` insère des espaces insécables fines : on les normalise en espace simple. */
+function plain(text: string): string {
+  return text.replace(/[\u00a0\u202f]/g, " ");
+}
+
 /**
  * Libellé relatif en français (« il y a 2 h », « hier », « à l'instant »)
  * d'une date ISO par rapport à `now` (injectable pour les tests). À calculer
@@ -37,16 +42,18 @@ export function formatRelativeTime(iso: string, now: Date): string {
 
   if (elapsed < MINUTE) return "à l'instant";
   if (elapsed < HOUR) {
-    return shortFormat.format(-Math.floor(elapsed / MINUTE), "minute");
+    return plain(shortFormat.format(-Math.floor(elapsed / MINUTE), "minute"));
   }
   if (elapsed < DAY) {
-    return shortFormat.format(-Math.floor(elapsed / HOUR), "hour");
+    return plain(shortFormat.format(-Math.floor(elapsed / HOUR), "hour"));
   }
   const days = Math.floor(elapsed / DAY);
-  if (days < 7) return shortFormat.format(-days, "day");
-  if (days < 30) return shortFormat.format(-Math.floor(days / 7), "week");
-  if (days < 365) return longFormat.format(-Math.floor(days / 30), "month");
-  return longFormat.format(-Math.floor(days / 365), "year");
+  if (days < 7) return plain(shortFormat.format(-days, "day"));
+  if (days < 30)
+    return plain(shortFormat.format(-Math.floor(days / 7), "week"));
+  if (days < 365)
+    return plain(longFormat.format(-Math.floor(days / 30), "month"));
+  return plain(longFormat.format(-Math.floor(days / 365), "year"));
 }
 
 /** Texte « mis à jour … » affiché sur une carte. */
