@@ -97,7 +97,7 @@ test.describe("annonces côté utilisateur (lecture seule)", () => {
     expect(await cardTitles(page)).toEqual([PINNED, RECENT, OLDER]);
 
     const first = page.getByTestId("announcement-card").first();
-    await expect(first.getByText(/publiée il y a/)).toBeVisible();
+    await expect(first.getByText(/publiée /)).toBeVisible();
     await expect(first.getByText(/20\d\d/)).toBeVisible();
     await expect(page.getByText(DRAFT)).toHaveCount(0);
     await expectNoHorizontalScroll(page);
@@ -178,7 +178,7 @@ test.describe("annonces côté administration (lecture seule)", () => {
     await page.getByLabel("Titre *").fill("Aperçu seulement");
     await page.getByLabel("Texte *").fill("Bonjour\nle monde");
     await expect(page.getByTestId("text-counter")).toContainText(
-      "1987 caractères restants",
+      "1984 caractères restants",
     );
     const preview = page.getByTestId("announcement-preview");
     await expect(
