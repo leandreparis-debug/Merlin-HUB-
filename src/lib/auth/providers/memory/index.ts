@@ -43,6 +43,8 @@ export interface MemoryAccountInput {
 export interface MemoryAuthService extends AuthService {
   /** Crée le profil (store partagé) et son mot de passe. Réservé au dev/aux tests. */
   addAccount(input: MemoryAccountInput): Promise<Profile>;
+  /** Remplace le mot de passe d'un compte (réservé à `AccountAdminService`, dev/tests). Retourne `false` si le compte est inconnu. */
+  setPassword(userId: string, password: string): Promise<boolean>;
 }
 
 // Hash d'un mot de passe quelconque : comparé quand l'email est inconnu pour
@@ -94,6 +96,12 @@ export function createMemoryAuthService(
         mustChangePassword: input.mustChangePassword ?? false,
         isActive: input.isActive ?? true,
       });
+    },
+
+    async setPassword(userId, password) {
+      if (!hashes.has(userId)) return false;
+      hashes.set(userId, hashPassword(password));
+      return true;
     },
 
     async signInWithPassword(email, password): Promise<SignInResult> {

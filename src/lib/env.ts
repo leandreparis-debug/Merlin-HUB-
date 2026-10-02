@@ -50,6 +50,7 @@ const serverOnlyEnvSchema = z.object({
     emptyToUndefined,
     z.string().optional(),
   ),
+  ALLOWED_EMAIL_DOMAINS: z.preprocess(emptyToUndefined, z.string().optional()),
   MEMORY_AUTH_SECRET: z.preprocess(
     emptyToUndefined,
     z
@@ -140,6 +141,7 @@ export function getEnv(): ServerEnv {
       process.env["NEXT_PUBLIC_ADMIN_CONTACT_EMAIL"],
     SUPABASE_SERVICE_ROLE_KEY: process.env["SUPABASE_SERVICE_ROLE_KEY"],
     MEMORY_AUTH_SECRET: process.env["MEMORY_AUTH_SECRET"],
+    ALLOWED_EMAIL_DOMAINS: process.env["ALLOWED_EMAIL_DOMAINS"],
   });
 
   if (!result.success) {
@@ -206,4 +208,38 @@ export function getServerEnv(): ServerEnvWithDataProvider {
   }
 
   return { ...base, DATA_PROVIDER: dataProvider };
+}
+
+const DOMAIN_PATTERN =
+  /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
+
+/**
+ * Interprète `ALLOWED_EMAIL_DOMAINS` (liste séparée par des virgules, ex.
+ * `carrefour.com,carrefourproperty.fr`). Valeur absente ou vide = `[]` (aucune
+ * restriction). Lève une erreur claire en français si un domaine est invalide.
+ */
+export function parseAllowedEmailDomains(raw: string | undefined): string[] {
+  if (!raw || raw.trim() === "") return [];
+  const domains = raw
+    .split(",")
+    .map((part) => part.trim().toLowerCase().replace(/^@/, ""))
+    .filter((part) => part !== "");
+  const invalid = domains.filter((domain) => !DOMAIN_PATTERN.test(domain));
+  if (invalid.length > 0 || domains.length === 0) {
+    throw new Error(
+      "ALLOWED_EMAIL_DOMAINS est invalide : indiquez des domaines séparés par " +
+        "des virgules (ex. carrefour.com,carrefourproperty.fr).",
+    );
+  }
+  return [...new Set(domains)];
+}
+
+/** Vrai si l'email appartient à l'un des domaines autorisés (toujours vrai si la liste est vide). */
+export function isEmailDomainAllowed(
+  email: string,
+  allowedDomains: readonly string[],
+): boolean {
+  if (allowedDomains.length === 0) return true;
+  const domain = email.trim().toLowerCase().split("@").pop() ?? "";
+  return allowedDomains.includes(domain);
 }

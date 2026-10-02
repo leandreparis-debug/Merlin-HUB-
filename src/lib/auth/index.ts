@@ -1,6 +1,6 @@
 import "server-only";
 
-export { getAuthService } from "@/lib/auth/factory";
+export { getAccountAdminService, getAuthService } from "@/lib/auth/factory";
 export type { AuthService } from "@/lib/auth/service";
 export {
   getCurrentUser,

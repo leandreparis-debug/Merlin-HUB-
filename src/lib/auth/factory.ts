@@ -1,5 +1,8 @@
 import "server-only";
 
+import type { AccountAdminService } from "@/lib/auth/account-admin";
+import { createMemoryAccountAdminService } from "@/lib/auth/providers/memory/account-admin";
+import { createSupabaseAccountAdminService } from "@/lib/auth/providers/supabase/account-admin";
 import { nextCookieStore } from "@/lib/auth/cookies";
 import {
   createMemoryAuthService,
@@ -11,6 +14,7 @@ import type { AuthService } from "@/lib/auth/service";
 import { getAdminRepositories, getMemoryRepositories } from "@/lib/data";
 import { isNotFoundError } from "@/lib/data/errors";
 import { getServerEnv } from "@/lib/env";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createUserClient } from "@/lib/supabase/server";
 
 // Sur `globalThis` pour rester unique malgré les rechargements à chaud en dev.
@@ -23,7 +27,7 @@ const globalForAuth = globalThis as typeof globalThis & {
  * repositories) : lève une erreur explicite en production. Les comptes de
  * dev sont créés à la première utilisation ; chaque méthode attend ce seed.
  */
-function getMemoryAuthService(secret: string): AuthService {
+function getMemoryAuthService(secret: string): MemoryAuthService {
   if (process.env.NODE_ENV === "production") {
     throw new Error(
       "L'authentification en mémoire (DATA_PROVIDER=memory) ne doit jamais " +
@@ -52,6 +56,10 @@ function getMemoryAuthService(secret: string): AuthService {
         await ready,
         service.updatePassword(...args)
       ),
+      setPassword: async (...args) => (
+        await ready,
+        service.setPassword(...args)
+      ),
     };
   }
   return globalForAuth.__merlinMemoryAuth;
@@ -79,5 +87,26 @@ export function getAuthService(): AuthService {
         throw error;
       }
     },
+  });
+}
+
+/**
+ * Service de gestion des comptes Auth (création, réinitialisation du mot de
+ * passe provisoire), choisi selon `DATA_PROVIDER`. **Réservé au serveur et à
+ * appeler uniquement après `requireAdmin()`** : c'est la seule voie de
+ * gestion des comptes Auth (le reste de l'application ne touche jamais au
+ * fournisseur d'authentification).
+ */
+export function getAccountAdminService(): AccountAdminService {
+  const env = getServerEnv();
+  if (env.DATA_PROVIDER === "memory") {
+    return createMemoryAccountAdminService({
+      auth: getMemoryAuthService(env.MEMORY_AUTH_SECRET ?? ""),
+      profiles: getMemoryRepositories().profiles,
+    });
+  }
+  return createSupabaseAccountAdminService({
+    client: createAdminClient(),
+    profiles: getAdminRepositories().profiles,
   });
 }
