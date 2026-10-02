@@ -10,6 +10,7 @@ export const ADMIN_SECTIONS = [
   { href: "/admin", label: "Tableau de bord", exact: true },
   { href: "/admin/apps", label: "Applications", exact: false },
   { href: "/admin/users", label: "Utilisateurs", exact: false },
+  { href: "/admin/announcements", label: "Annonces", exact: false },
 ] as const;
 
 /** Sous-navigation de l'administration ; la page courante porte `aria-current="page"`. */

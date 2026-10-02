@@ -4,6 +4,7 @@ import { StatusEventList } from "@/components/admin/status-event-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { loadAdminDashboard } from "@/lib/admin/apps/data";
+import { loadAnnouncementSummary } from "@/lib/admin/announcements/data";
 import { loadUserSummary } from "@/lib/admin/users/data";
 import { requireAdmin } from "@/lib/auth";
 import { statusLabel } from "@/lib/catalogue/status";
@@ -38,6 +39,7 @@ export default async function AdminDashboardPage() {
   await requireAdmin();
   const { summary, events } = await loadAdminDashboard();
   const users = await loadUserSummary();
+  const announcements = await loadAnnouncementSummary();
 
   return (
     <div className="space-y-10">
@@ -99,6 +101,31 @@ export default async function AdminDashboardPage() {
             label="Première connexion en attente"
             value={users.pendingFirstLogin}
           />
+        </div>
+      </section>
+
+      <section
+        aria-labelledby="announcements-tiles-title"
+        className="space-y-4"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2
+            id="announcements-tiles-title"
+            className="text-foreground text-xl font-semibold"
+          >
+            Annonces
+          </h2>
+          <Button asChild variant="outline" className="min-h-11">
+            <Link href="/admin/announcements">Gérer les annonces</Link>
+          </Button>
+        </div>
+        <div
+          data-testid="announcement-tiles"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <Tile label="Publiées" value={announcements.published} />
+          <Tile label="Épinglées" value={announcements.pinned} />
+          <Tile label="Brouillons" value={announcements.drafts} />
         </div>
       </section>
 
