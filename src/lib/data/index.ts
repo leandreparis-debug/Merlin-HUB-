@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createDemoAnnouncements } from "@/lib/data/providers/memory/demo-announcements";
 import { createDemoApps } from "@/lib/data/providers/memory/demo-apps";
 import {
   createMemoryRepositories,
@@ -34,6 +35,7 @@ export function getMemoryRepositories(): MemoryRepositories {
     // Jeu d'applications de démonstration (dev/e2e) : jamais en production,
     // le garde-fou ci-dessus ayant déjà levé une erreur.
     apps: createDemoApps(),
+    announcements: createDemoAnnouncements(),
   });
   return globalForMemory.__merlinMemoryRepositories;
 }

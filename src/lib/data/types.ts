@@ -133,7 +133,8 @@ export interface Announcement {
   body: string;
   isPinned: boolean;
   isPublished: boolean;
-  publishedAt: string;
+  /** Date de première publication (ISO 8601), `null` tant que l'annonce n'a jamais été publiée. */
+  publishedAt: string | null;
   createdBy: string | null;
   createdAt: string;
   updatedAt: string;

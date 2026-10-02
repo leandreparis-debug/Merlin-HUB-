@@ -11,9 +11,11 @@ import { createClient } from "@supabase/supabase-js";
 import { describe } from "vitest";
 
 import { runActivityLogRepositoryContract } from "@/lib/data/contract/activity-log-repository.contract";
+import { runAnnouncementRepositoryContract } from "@/lib/data/contract/announcement-repository.contract";
 import { runAppRepositoryContract } from "@/lib/data/contract/app-repository.contract";
 import { runProfileRepositoryContract } from "@/lib/data/contract/profile-repository.contract";
 import { createSupabaseActivityLogRepository } from "@/lib/data/providers/supabase/activity-log-repository";
+import { createSupabaseAnnouncementRepository } from "@/lib/data/providers/supabase/announcement-repository";
 import { createSupabaseAppRepository } from "@/lib/data/providers/supabase/app-repository";
 import { createSupabaseProfileRepository } from "@/lib/data/providers/supabase/profile-repository";
 
@@ -34,6 +36,10 @@ describe.skipIf(!isEnabled)(
   () => {
     runAppRepositoryContract(() =>
       createSupabaseAppRepository(getTestClient()),
+    );
+
+    runAnnouncementRepositoryContract(() =>
+      createSupabaseAnnouncementRepository(getTestClient()),
     );
 
     runProfileRepositoryContract(() => {

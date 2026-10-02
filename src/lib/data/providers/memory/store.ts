@@ -1,5 +1,6 @@
 import type {
   ActivityLogEntry,
+  Announcement,
   App,
   AppStatusEvent,
   Profile,
@@ -14,6 +15,7 @@ import type {
 export class MemoryStore {
   readonly profiles = new Map<string, Profile>();
   readonly apps = new Map<string, App>();
+  readonly announcements = new Map<string, Announcement>();
   appStatusEvents: AppStatusEvent[] = [];
   activityLog: ActivityLogEntry[] = [];
 
@@ -32,6 +34,7 @@ export class MemoryStore {
 export interface MemoryStoreSeed {
   profiles?: Profile[];
   apps?: App[];
+  announcements?: Announcement[];
 }
 
 /** Crée un store vide, optionnellement pré-rempli. */
@@ -43,6 +46,9 @@ export function createMemoryStore(seed?: MemoryStoreSeed): MemoryStore {
   }
   for (const app of seed?.apps ?? []) {
     store.apps.set(app.id, app);
+  }
+  for (const announcement of seed?.announcements ?? []) {
+    store.announcements.set(announcement.id, announcement);
   }
 
   return store;

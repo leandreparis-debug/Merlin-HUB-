@@ -172,18 +172,43 @@ export const updateProfileInputSchema = z.object({
     .optional(),
 });
 
+/** Caractères de contrôle refusés dans une annonce (hors retour à la ligne et tabulation). */
+const CONTROL_CHARS_PATTERN = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
+
+/** Normalise un texte brut d'annonce : fins de ligne `\n`, caractères de contrôle retirés, espaces de bord supprimés. */
+export function normalizeAnnouncementText(value: string): string {
+  return value
+    .replace(/\r\n?/g, "\n")
+    .replace(CONTROL_CHARS_PATTERN, "")
+    .trim();
+}
+
+/** Titre d'annonce : texte brut, 1 à 120 caractères après normalisation. */
+export const announcementTitleSchema = z
+  .string()
+  .transform(normalizeAnnouncementText)
+  .pipe(
+    z
+      .string()
+      .min(1, { message: "Le titre est requis" })
+      .max(120, { message: "Le titre ne doit pas dépasser 120 caractères" }),
+  );
+
+/** Texte d'annonce : texte brut (retours à la ligne conservés), 1 à 2000 caractères après normalisation. */
+export const announcementBodySchema = z
+  .string()
+  .transform(normalizeAnnouncementText)
+  .pipe(
+    z
+      .string()
+      .min(1, { message: "Le texte est requis" })
+      .max(2000, { message: "Le texte ne doit pas dépasser 2000 caractères" }),
+  );
+
 /** Entrée de création d'une annonce. */
 export const createAnnouncementInputSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, { message: "Le titre est requis" })
-    .max(120, { message: "Le titre ne doit pas dépasser 120 caractères" }),
-  body: z
-    .string()
-    .trim()
-    .min(1, { message: "Le contenu est requis" })
-    .max(2000, { message: "Le contenu ne doit pas dépasser 2000 caractères" }),
+  title: announcementTitleSchema,
+  body: announcementBodySchema,
   isPinned: z.boolean().optional(),
   isPublished: z.boolean().optional(),
   createdBy: uuidSchema.nullable().optional(),
@@ -191,18 +216,8 @@ export const createAnnouncementInputSchema = z.object({
 
 /** Correctif partiel appliqué à une annonce existante. */
 export const updateAnnouncementInputSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, { message: "Le titre est requis" })
-    .max(120, { message: "Le titre ne doit pas dépasser 120 caractères" })
-    .optional(),
-  body: z
-    .string()
-    .trim()
-    .min(1, { message: "Le contenu est requis" })
-    .max(2000, { message: "Le contenu ne doit pas dépasser 2000 caractères" })
-    .optional(),
+  title: announcementTitleSchema.optional(),
+  body: announcementBodySchema.optional(),
   isPinned: z.boolean().optional(),
   isPublished: z.boolean().optional(),
 });

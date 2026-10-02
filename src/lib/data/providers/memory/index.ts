@@ -32,7 +32,7 @@ export function createMemoryRepositories(
   return {
     profiles: createMemoryProfileRepository(store),
     apps: createMemoryAppRepository(store),
-    announcements: createMemoryAnnouncementRepository(),
+    announcements: createMemoryAnnouncementRepository(store),
     reports: createMemoryReportRepository(),
     activityLog: createMemoryActivityLogRepository(store),
   };

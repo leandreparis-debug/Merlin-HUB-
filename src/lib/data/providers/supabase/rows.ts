@@ -5,9 +5,11 @@
  */
 import type {
   ActivityLogEntry,
+  Announcement,
   App,
   AppStatus,
   AppStatusEvent,
+  CreateAnnouncementInput,
   CreateAppInput,
   Profile,
   RecordActivityLogInput,
@@ -199,4 +201,45 @@ export function recordActivityLogInputToRow(
     entity_id: entry.entityId ?? null,
     metadata: entry.metadata ?? {},
   };
+}
+
+export interface AnnouncementRow {
+  id: string;
+  title: string;
+  body: string;
+  is_pinned: boolean;
+  is_published: boolean;
+  published_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Ligne `announcements` → {@link Announcement}. */
+export function announcementFromRow(row: AnnouncementRow): Announcement {
+  return {
+    id: row.id,
+    title: row.title,
+    body: row.body,
+    isPinned: row.is_pinned,
+    isPublished: row.is_published,
+    publishedAt: row.published_at,
+    createdBy: row.created_by,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+/** {@link CreateAnnouncementInput} → ligne `announcements` partielle (`published_at` est posé par le trigger de la base). */
+export function createAnnouncementInputToRow(
+  input: CreateAnnouncementInput,
+): Partial<AnnouncementRow> {
+  const row: Partial<AnnouncementRow> = {
+    title: input.title,
+    body: input.body,
+  };
+  if (input.isPinned !== undefined) row.is_pinned = input.isPinned;
+  if (input.isPublished !== undefined) row.is_published = input.isPublished;
+  if (input.createdBy !== undefined) row.created_by = input.createdBy;
+  return row;
 }
