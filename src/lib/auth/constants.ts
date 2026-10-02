@@ -13,6 +13,7 @@ export const MEMORY_SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
 export const LOGIN_PATH = "/login";
 export const CHANGE_PASSWORD_PATH = "/change-password";
 export const ADMIN_PATH = "/admin";
+export const ANNOUNCEMENTS_PATH = "/announcements";
 
 /**
  * Routes que le middleware redirige vers `/login` sans session (confort UX
@@ -23,6 +24,7 @@ export const ADMIN_PATH = "/admin";
 export const PROTECTED_PATH_PREFIXES = [
   CHANGE_PASSWORD_PATH,
   ADMIN_PATH,
+  ANNOUNCEMENTS_PATH,
 ] as const;
 
 /** Indique si le middleware doit exiger une session pour ce chemin. */

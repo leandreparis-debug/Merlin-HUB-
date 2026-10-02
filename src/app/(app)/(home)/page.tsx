@@ -1,6 +1,8 @@
+import { AnnouncementsZone } from "@/components/announcements/announcements-zone";
 import { CatalogueView } from "@/components/catalogue/catalogue-view";
 import { NoticeBanner } from "@/components/layout/notice-banner";
 import { PageContainer } from "@/components/layout/page-container";
+import { loadHomeAnnouncements } from "@/lib/announcements/data";
 import { requireUser } from "@/lib/auth";
 import { categoriesOf, parseCatalogueParams } from "@/lib/catalogue/filter";
 import { loadCatalogue } from "@/lib/catalogue/data";
@@ -28,6 +30,11 @@ export default async function Home({
   const user = await requireUser();
   const params = await searchParams;
   const apps = await loadCatalogue();
+  // Une panne des annonces ne doit jamais masquer le catalogue.
+  const announcements = await loadHomeAnnouncements().then(
+    (result) => ({ ...result, unavailable: false }),
+    () => ({ items: [], hasMore: false, unavailable: true }),
+  );
   const initialFilters = parseCatalogueParams(params, categoriesOf(apps));
   const name = firstName(user.fullName);
 
@@ -43,8 +50,7 @@ export default async function Home({
         internes Carrefour Property.
       </p>
 
-      {/* Emplacement réservé aux annonces épinglées (étape 7). */}
-      <div data-slot="announcements" />
+      <AnnouncementsZone {...announcements} />
 
       <CatalogueView apps={apps} initialFilters={initialFilters} />
     </PageContainer>
