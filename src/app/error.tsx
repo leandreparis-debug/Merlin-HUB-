@@ -19,23 +19,25 @@ export default function Error({
   }, [error]);
 
   return (
-    <PageContainer className="flex min-h-[60vh] flex-col items-center justify-center gap-4 py-10 text-center">
-      <p className="text-destructive text-sm font-semibold">Erreur</p>
-      <h1 className="text-foreground text-2xl font-bold">
-        Une erreur est survenue
-      </h1>
-      <p className="text-muted-foreground max-w-md">
-        Quelque chose s&apos;est mal passé. Vous pouvez réessayer ou revenir à
-        l&apos;accueil.
-      </p>
-      <div className="flex gap-3">
-        <Button variant="outline" onClick={() => reset()}>
-          Réessayer
-        </Button>
-        <Button asChild>
-          <Link href="/">Retour à l&apos;accueil</Link>
-        </Button>
-      </div>
-    </PageContainer>
+    <main id="main-content" className="flex-1">
+      <PageContainer className="flex min-h-[60vh] flex-col items-center justify-center gap-4 py-10 text-center">
+        <p className="text-destructive text-sm font-semibold">Erreur</p>
+        <h1 className="text-foreground text-2xl font-bold">
+          Une erreur est survenue
+        </h1>
+        <p className="text-muted-foreground max-w-md">
+          Quelque chose s&apos;est mal passé. Vous pouvez réessayer ou revenir à
+          l&apos;accueil.
+        </p>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => reset()}>
+            Réessayer
+          </Button>
+          <Button asChild>
+            <Link href="/">Retour à l&apos;accueil</Link>
+          </Button>
+        </div>
+      </PageContainer>
+    </main>
   );
 }

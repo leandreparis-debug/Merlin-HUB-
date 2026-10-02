@@ -12,7 +12,6 @@ export function safeRedirectPath(next: unknown): string {
   if (next.includes("\\")) return "/";
   // Les navigateurs ignorent tabulations et retours à la ligne dans une URL :
   // "/\t/evil.com" deviendrait "//evil.com".
-  // eslint-disable-next-line no-control-regex
   if (/[\u0000-\u001f\u007f]/.test(next)) return "/";
   if (next === "/login" || next.startsWith("/login?")) return "/";
   return next;

@@ -1,3 +1,4 @@
+import { NoticeBanner } from "@/components/layout/notice-banner";
 import { PageContainer } from "@/components/layout/page-container";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -6,9 +7,18 @@ import { Skeleton } from "@/components/ui/skeleton";
  * Page d'accueil provisoire de Merlin. Sera remplacée à l'étape 4 par le
  * catalogue réel des applications Carrefour Property.
  */
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string | string[] }>;
+}) {
+  const { notice } = await searchParams;
+
   return (
     <PageContainer className="py-10 sm:py-14">
+      {notice === "password-changed" ? (
+        <NoticeBanner>Votre mot de passe a bien été modifié.</NoticeBanner>
+      ) : null}
       <h1 className="text-foreground text-3xl font-bold">
         Bienvenue sur Merlin
       </h1>

@@ -3,8 +3,6 @@ import { Inter } from "next/font/google";
 
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
 import { getPublicEnv } from "@/lib/env";
-import { Footer } from "@/components/layout/footer";
-import { Header } from "@/components/layout/header";
 import { SkipLink } from "@/components/layout/skip-link";
 
 import "./globals.css";
@@ -29,8 +27,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Layout racine de Merlin : langue française, lien d'évitement, en-tête,
- * zone de contenu principale et pied de page.
+ * Layout racine de Merlin : langue française et lien d'évitement. L'en-tête,
+ * la zone principale et le pied de page sont fournis par les layouts de
+ * groupe : `(app)` (connecté) et `(public)` (connexion, 404).
  */
 export default function RootLayout({
   children,
@@ -43,11 +42,7 @@ export default function RootLayout({
         className={`${inter.variable} flex min-h-screen flex-col antialiased`}
       >
         <SkipLink />
-        <Header />
-        <main id="main-content" className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        {children}
       </body>
     </html>
   );
