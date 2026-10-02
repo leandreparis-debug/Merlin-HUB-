@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   activityLogEntryFromRow,
+  announcementFromRow,
   appFromRow,
   appStatusEventFromRow,
+  createAnnouncementInputToRow,
   createAppInputToRow,
   profileFromRow,
   recordActivityLogInputToRow,
@@ -163,5 +165,50 @@ describe("activityLogEntryFromRow / recordActivityLogInputToRow", () => {
       entity_id: null,
       metadata: {},
     });
+  });
+});
+
+describe("annonces", () => {
+  it("announcementFromRow convertit snake_case vers le domaine, published_at nul inclus", () => {
+    const base = {
+      id: "1",
+      title: "T",
+      body: "B",
+      is_pinned: true,
+      is_published: false,
+      published_at: null,
+      created_by: null,
+      created_at: "2026-01-01T00:00:00Z",
+      updated_at: "2026-01-02T00:00:00Z",
+    };
+    expect(announcementFromRow(base)).toEqual({
+      id: "1",
+      title: "T",
+      body: "B",
+      isPinned: true,
+      isPublished: false,
+      publishedAt: null,
+      createdBy: null,
+      createdAt: "2026-01-01T00:00:00Z",
+      updatedAt: "2026-01-02T00:00:00Z",
+    });
+  });
+
+  it("createAnnouncementInputToRow n'envoie jamais published_at (posé par le trigger)", () => {
+    const row = createAnnouncementInputToRow({
+      title: "T",
+      body: "B",
+      isPublished: true,
+      isPinned: false,
+      createdBy: "u",
+    });
+    expect(row).toEqual({
+      title: "T",
+      body: "B",
+      is_published: true,
+      is_pinned: false,
+      created_by: "u",
+    });
+    expect(Object.keys(row)).not.toContain("published_at");
   });
 });

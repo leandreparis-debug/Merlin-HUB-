@@ -16,6 +16,27 @@ const files = walk(ADMIN_DIR);
 const read = (file: string) => fs.readFileSync(file, "utf8");
 const rel = (file: string) => path.relative(ADMIN_DIR, file);
 
+/** Violations du contrat « requireAdmin() en premier » dans le source d'un fichier d'actions. */
+function findActionViolations(source: string): string[] {
+  const violations: string[] = [];
+  if (!source.startsWith('"use server"')) {
+    violations.push('le fichier doit commencer par "use server"');
+  }
+  for (const chunk of source.split("export async function ").slice(1)) {
+    const name = chunk.slice(0, chunk.indexOf("("));
+    const guard = chunk.indexOf("await requireAdmin()");
+    const data = chunk.indexOf("getAdminRepositories(");
+    if (guard === -1) {
+      violations.push(`${name} doit appeler requireAdmin()`);
+    } else if (data !== -1 && guard > data) {
+      violations.push(
+        `${name} doit appeler requireAdmin() avant getAdminRepositories()`,
+      );
+    }
+  }
+  return violations;
+}
+
 describe("garde-fous statiques de l'administration", () => {
   it("le layout et chaque page d'administration appellent requireAdmin()", () => {
     const targets = files.filter((file) =>
@@ -36,25 +57,43 @@ describe("garde-fous statiques de l'administration", () => {
     expect(actionFiles.length).toBeGreaterThan(0);
 
     for (const file of actionFiles) {
-      const source = read(file);
-      expect(source.startsWith('"use server"')).toBe(true);
-      const chunks = source.split("export async function ").slice(1);
-      expect(chunks.length).toBeGreaterThan(0);
-      for (const chunk of chunks) {
-        const name = chunk.slice(0, chunk.indexOf("("));
-        const guard = chunk.indexOf("await requireAdmin()");
-        const data = chunk.indexOf("getAdminRepositories(");
-        expect(guard, `${name} doit appeler requireAdmin()`).toBeGreaterThan(
-          -1,
-        );
-        if (data !== -1) {
-          expect(
-            guard,
-            `${name} doit appeler requireAdmin() avant getAdminRepositories()`,
-          ).toBeLessThan(data);
-        }
-      }
+      expect(findActionViolations(read(file)), rel(file)).toEqual([]);
     }
+  });
+
+  it("le garde-fou des actions échoue sur une action sans requireAdmin() (cas simulé)", () => {
+    const unguarded = [
+      '"use server"',
+      "export async function leakAction() {",
+      "  const repos = getAdminRepositories();",
+      "  return repos.announcements.listAll();",
+      "}",
+    ].join("\n");
+    expect(findActionViolations(unguarded)).toEqual([
+      "leakAction doit appeler requireAdmin()",
+    ]);
+
+    const lateGuard = [
+      '"use server"',
+      "export async function lateAction() {",
+      "  getAdminRepositories();",
+      "  await requireAdmin();",
+      "}",
+    ].join("\n");
+    expect(findActionViolations(lateGuard)).toEqual([
+      "lateAction doit appeler requireAdmin() avant getAdminRepositories()",
+    ]);
+  });
+
+  it("les actions et pages des annonces sont bien parcourues par le garde-fou", () => {
+    expect(files.map(rel)).toEqual(
+      expect.arrayContaining([
+        path.join("announcements", "actions.ts"),
+        path.join("announcements", "page.tsx"),
+        path.join("announcements", "new", "page.tsx"),
+        path.join("announcements", "[id]", "page.tsx"),
+      ]),
+    );
   });
 
   it("aucun composant n'appelle getAdminRepositories() (réservé aux actions et chargeurs d'admin)", () => {

@@ -63,3 +63,15 @@ describe("garde-fou du middleware", () => {
     expect(isTransparentFolder("admin")).toBe(false);
   });
 });
+
+describe("annonces", () => {
+  it("/announcements et ses sous-chemins exigent une session (middleware)", () => {
+    expect(isProtectedPath("/announcements")).toBe(true);
+    expect(isProtectedPath("/announcements/autre")).toBe(true);
+    expect(isProtectedPath("/announcementsfoo")).toBe(false);
+  });
+
+  it("la route /announcements existe bien sous src/app/(app) (le test de couverture la vérifie)", () => {
+    expect(topLevelSegments(APP_DIR)).toContain("announcements");
+  });
+});

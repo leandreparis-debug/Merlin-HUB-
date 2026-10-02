@@ -72,6 +72,33 @@ describe("migrations SQL (vérification statique)", () => {
   });
 });
 
+describe("migration published_at des annonces (statique)", () => {
+  const file = "20261001000700_announcements_published_at.sql";
+  const sql = () => readMigration(file);
+
+  it("est additive : elle ne modifie pas la migration d'origine et passe après elle", () => {
+    const files = listMigrationFiles(MIGRATIONS_DIR);
+    expect(files).toContain(file);
+    expect(files.indexOf(file)).toBeGreaterThan(
+      files.indexOf("20261001000400_announcements.sql"),
+    );
+    expect(readMigration("20261001000400_announcements.sql")).toMatch(
+      /published_at timestamptz not null default now\(\)/,
+    );
+  });
+
+  it("rend published_at nullable, ajoute la contrainte et le trigger sécurisé", () => {
+    expect(sql()).toMatch(/alter column published_at drop not null/i);
+    expect(sql()).toMatch(/announcements_published_has_date/);
+    expect(sql()).toMatch(/set search_path = ''/);
+    expect(sql()).toMatch(/before insert or update on public\.announcements/i);
+  });
+
+  it("n'altère aucune policy RLS", () => {
+    expect(sql()).not.toMatch(/create policy|drop policy|disable row level/i);
+  });
+});
+
 describe("db:bundle", () => {
   it("contient toutes les migrations, dans l'ordre", () => {
     const bundle = bundleMigrations(MIGRATIONS_DIR);

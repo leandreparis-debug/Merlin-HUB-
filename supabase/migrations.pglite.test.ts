@@ -299,3 +299,210 @@ describe("Fonctions RPC — set_app_status et reorder_apps", () => {
     expect(checkApp[0]?.status).toBe("online");
   });
 });
+
+describe("annonces — published_at (trigger) et RLS", () => {
+  async function insertAnnouncement(
+    title: string,
+    published: boolean,
+  ): Promise<string> {
+    const { rows } = await db.query<{ id: string }>(
+      `insert into public.announcements (title, body, is_published)
+       values ($1, 'Texte', $2) returning id;`,
+      [title, published],
+    );
+    const row = rows[0];
+    if (!row) throw new Error("Annonce de test non créée.");
+    return row.id;
+  }
+
+  async function publishedAt(id: string): Promise<string | null> {
+    const { rows } = await db.query<{ published_at: string | null }>(
+      "select published_at::text from public.announcements where id = $1;",
+      [id],
+    );
+    return rows[0]?.published_at ?? null;
+  }
+
+  async function createAdmin(email: string): Promise<string> {
+    const id = await createAuthUser(email);
+    await db.query("update public.profiles set role = 'admin' where id = $1;", [
+      id,
+    ]);
+    return id;
+  }
+
+  it("published_at est nul pour un brouillon et posé à la création d'une annonce publiée", async () => {
+    const draft = await insertAnnouncement("Brouillon trigger", false);
+    const published = await insertAnnouncement("Publiée trigger", true);
+
+    expect(await publishedAt(draft)).toBeNull();
+    expect(await publishedAt(published)).not.toBeNull();
+  });
+
+  it("la date est posée à la première publication puis conservée (dépublier / republier / modifier)", async () => {
+    const id = await insertAnnouncement("Cycle trigger", false);
+
+    await db.query(
+      "update public.announcements set is_published = true where id = $1;",
+      [id],
+    );
+    const first = await publishedAt(id);
+    expect(first).not.toBeNull();
+
+    await db.query("select pg_sleep(0.05);");
+    await db.query(
+      "update public.announcements set is_published = false where id = $1;",
+      [id],
+    );
+    expect(await publishedAt(id)).toBe(first);
+
+    await db.query("select pg_sleep(0.05);");
+    await db.query(
+      "update public.announcements set is_published = true, title = 'Modifiée', is_pinned = true where id = $1;",
+      [id],
+    );
+    expect(await publishedAt(id)).toBe(first);
+  });
+
+  it("la contrainte interdit une annonce publiée sans date même si le trigger est contourné", async () => {
+    const id = await insertAnnouncement("Contrainte", true);
+    await db.exec(
+      "alter table public.announcements disable trigger set_announcements_published_at;",
+    );
+    try {
+      await expect(
+        db.query(
+          "update public.announcements set published_at = null where id = $1;",
+          [id],
+        ),
+      ).rejects.toThrow();
+    } finally {
+      await db.exec(
+        "alter table public.announcements enable trigger set_announcements_published_at;",
+      );
+    }
+  });
+
+  it("un utilisateur simple ne voit que les annonces publiées, jamais un brouillon", async () => {
+    const aliceId = await createAuthUser("alice-annonces@example.com");
+    const draft = await insertAnnouncement("Brouillon RLS secret", false);
+    const published = await insertAnnouncement("Publiée RLS", true);
+
+    const visible = await asRole("authenticated", aliceId, async () => {
+      const { rows } = await db.query<{ id: string }>(
+        "select id from public.announcements where id = any($1::uuid[]);",
+        [[draft, published]],
+      );
+      return rows.map((row) => row.id);
+    });
+
+    expect(visible).toEqual([published]);
+  });
+
+  it("un utilisateur simple ne peut ni créer, ni modifier, ni supprimer une annonce", async () => {
+    const bobId = await createAuthUser("bob-annonces@example.com");
+    const target = await insertAnnouncement("Protégée RLS", true);
+
+    await expect(
+      asRole("authenticated", bobId, async () => {
+        await db.query(
+          "insert into public.announcements (title, body) values ('Pirate', 'x');",
+        );
+      }),
+    ).rejects.toThrow();
+
+    await asRole("authenticated", bobId, async () => {
+      await db.query(
+        "update public.announcements set title = 'Piratée', is_pinned = true where id = $1;",
+        [target],
+      );
+      await db.query("delete from public.announcements where id = $1;", [
+        target,
+      ]);
+    });
+
+    const { rows } = await db.query<{ title: string; is_pinned: boolean }>(
+      "select title, is_pinned from public.announcements where id = $1;",
+      [target],
+    );
+    expect(rows[0]).toEqual({ title: "Protégée RLS", is_pinned: false });
+  });
+
+  it("un admin voit les brouillons et peut créer, modifier et supprimer", async () => {
+    const adminId = await createAdmin("admin-annonces@example.com");
+    const draft = await insertAnnouncement("Brouillon admin", false);
+
+    const seen = await asRole("authenticated", adminId, async () => {
+      const { rows } = await db.query<{ id: string }>(
+        "select id from public.announcements where id = $1;",
+        [draft],
+      );
+      return rows.length;
+    });
+    expect(seen).toBe(1);
+
+    await asRole("authenticated", adminId, async () => {
+      await db.query(
+        "insert into public.announcements (title, body, created_by) values ('Créée par admin', 'x', $1);",
+        [adminId],
+      );
+      await db.query(
+        "update public.announcements set is_published = true, is_pinned = true where id = $1;",
+        [draft],
+      );
+    });
+    const { rows } = await db.query<{
+      is_published: boolean;
+      is_pinned: boolean;
+    }>(
+      "select is_published, is_pinned from public.announcements where id = $1;",
+      [draft],
+    );
+    expect(rows[0]).toEqual({ is_published: true, is_pinned: true });
+    expect(await publishedAt(draft)).not.toBeNull();
+
+    await asRole("authenticated", adminId, async () => {
+      await db.query("delete from public.announcements where id = $1;", [
+        draft,
+      ]);
+    });
+    const { rows: gone } = await db.query(
+      "select 1 from public.announcements where id = $1;",
+      [draft],
+    );
+    expect(gone).toHaveLength(0);
+  });
+
+  it("un compte désactivé ne voit aucune annonce, pas même publiée", async () => {
+    const userId = await createAuthUser("inactif-annonces@example.com");
+    const published = await insertAnnouncement("Publiée inactif", true);
+    await db.query(
+      "update public.profiles set is_active = false where id = $1;",
+      [userId],
+    );
+
+    const visible = await asRole("authenticated", userId, async () => {
+      const { rows } = await db.query(
+        "select id from public.announcements where id = $1;",
+        [published],
+      );
+      return rows.length;
+    });
+    expect(visible).toBe(0);
+  });
+
+  it("les contraintes de longueur de titre et de texte sont appliquées par la base", async () => {
+    await expect(
+      db.query(
+        "insert into public.announcements (title, body) values ($1, 'x');",
+        ["x".repeat(121)],
+      ),
+    ).rejects.toThrow();
+    await expect(
+      db.query(
+        "insert into public.announcements (title, body) values ('t', $1);",
+        ["x".repeat(2001)],
+      ),
+    ).rejects.toThrow();
+  });
+});
