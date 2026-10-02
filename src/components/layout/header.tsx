@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import Image from "next/image";
 import type { ReactNode } from "react";
 
@@ -7,35 +5,15 @@ import { APP_NAME, APP_SUBTITLE } from "@/lib/constants";
 import { PageContainer } from "@/components/layout/page-container";
 
 const LOGO_PUBLIC_PATH = "/brand/carrefour-property-logo.png";
-const LOGO_FILE_PATH = path.join(
-  process.cwd(),
-  "public",
-  "brand",
-  "carrefour-property-logo.png",
-);
-
-/**
- * Logo Carrefour Property. Si le fichier n'est pas présent dans `public/brand`,
- * affiche un repli textuel plutôt que de faire planter la page.
- */
+/** Logo Carrefour Property (fichier servi depuis `public/brand`). */
 function BrandMark() {
-  const logoExists = fs.existsSync(LOGO_FILE_PATH);
-
-  if (!logoExists) {
-    return (
-      <span className="text-sm font-semibold text-neutral-700">
-        Carrefour Property
-      </span>
-    );
-  }
-
   return (
     <Image
       src={LOGO_PUBLIC_PATH}
       alt="Carrefour Property"
-      width={40}
-      height={40}
-      className="h-10 w-10 object-contain"
+      width={44}
+      height={44}
+      className="h-11 w-11 object-contain"
       priority
     />
   );

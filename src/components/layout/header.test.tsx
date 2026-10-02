@@ -1,22 +1,10 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-const existsSyncMock = vi.hoisted(() => vi.fn());
-
-vi.mock("node:fs", () => ({
-  default: { existsSync: existsSyncMock },
-  existsSync: existsSyncMock,
-}));
-
-const { Header } = await import("@/components/layout/header");
+import { Header } from "@/components/layout/header";
 
 describe("Header", () => {
-  beforeEach(() => {
-    existsSyncMock.mockReset();
-  });
-
   it("affiche le nom « Merlin » et son sous-titre", () => {
-    existsSyncMock.mockReturnValue(true);
     render(<Header />);
 
     expect(screen.getByText("Merlin")).toBeInTheDocument();
@@ -25,18 +13,15 @@ describe("Header", () => {
     ).toBeInTheDocument();
   });
 
-  it("affiche le logo quand le fichier est disponible", () => {
-    existsSyncMock.mockReturnValue(true);
+  it("affiche toujours le logo (sans dépendre du système de fichiers du serveur)", () => {
     render(<Header />);
 
     expect(screen.getByAltText("Carrefour Property")).toBeInTheDocument();
   });
 
-  it("affiche un repli textuel quand le logo est indisponible", () => {
-    existsSyncMock.mockReturnValue(false);
-    render(<Header />);
+  it("affiche le menu utilisateur fourni", () => {
+    render(<Header userMenu={<button>Menu</button>} />);
 
-    expect(screen.getByText("Carrefour Property")).toBeInTheDocument();
-    expect(screen.queryByAltText("Carrefour Property")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Menu" })).toBeInTheDocument();
   });
 });
