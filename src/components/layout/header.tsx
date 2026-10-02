@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 import { APP_NAME, APP_SUBTITLE } from "@/lib/constants";
 import { PageContainer } from "@/components/layout/page-container";
@@ -42,9 +43,10 @@ function BrandMark() {
 
 /**
  * En-tête de l'application : logo Carrefour Property, nom et sous-titre de
- * Merlin à gauche, emplacement réservé au menu utilisateur à droite (étape 3).
+ * Merlin à gauche, menu utilisateur (`userMenu`) à droite. Sans `userMenu`
+ * (page de connexion, 404), l'en-tête est en mode « non connecté ».
  */
-export function Header() {
+export function Header({ userMenu }: { userMenu?: ReactNode } = {}) {
   return (
     <header className="border-border bg-card border-b">
       <PageContainer className="flex h-16 items-center justify-between gap-4">
@@ -58,8 +60,7 @@ export function Header() {
             </span>
           </div>
         </div>
-        {/* Emplacement réservé au menu utilisateur (étape 3) */}
-        <div aria-hidden="true" />
+        {userMenu}
       </PageContainer>
     </header>
   );
