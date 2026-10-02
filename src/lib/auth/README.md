@@ -1,18 +1,29 @@
 # `lib/auth` — service d'authentification abstrait
 
-Ce dossier contiendra, à partir de l'étape 3, l'unique point d'accès à l'authentification et aux rôles de Merlin (utilisateur / admin).
+Unique point d'accès à l'authentification et aux rôles de Merlin (utilisateur / admin). Guide complet : `docs/AUTH.md`.
 
 ## Règle
 
-**Aucun accès direct au fournisseur d'authentification en dehors de ce dossier.** Les composants, les routes API et les server actions ne doivent jamais appeler le SDK Supabase Auth (ou tout futur fournisseur SSO) directement : ils passent toujours par un service d'authentification exposé depuis `lib/auth`.
+**Aucun accès direct au fournisseur d'authentification en dehors de ce dossier** (et de `src/lib/supabase/`). Les composants, pages et server actions n'utilisent que `AuthService`, `getCurrentUser`, `requireUser` et `requireAdmin`, importés depuis `@/lib/auth`.
 
-## Contrat prévu
+## Contenu
 
-- Des fonctions typées telles que `getSession()`, `signIn(credentials)`, `signOut()`, `requireRole(role)`, retournant des types définis dans `src/types` (ex. `CurrentUser`, `UserRole`).
-- L'implémentation concrète (Supabase Auth par identifiant professionnel + mot de passe en V1, SSO Carrefour Property en V2) reste un détail interne au dossier.
-- Cette indirection permet de changer de fournisseur d'authentification sans modifier le code appelant (pages, layouts, middlewares).
+- `service.ts` / `types.ts` — interface `AuthService` (`signInWithPassword`, `signOut`, `getAuthenticatedUserId`, `updatePassword`), `SessionUser`.
+- `factory.ts` — `getAuthService()` : choisit l'implémentation selon `DATA_PROVIDER`.
+- `providers/supabase/` — Supabase Auth (identité vérifiée par `getUser()`), traduction des erreurs, rafraîchissement de session du middleware.
+- `providers/memory/` — comptes en mémoire et session par cookie signé HMAC (dev/e2e, interdit en production), seed de comptes factices.
+- `session.ts` — `getCurrentUser()` (profil lu en base à chaque requête, cache par requête), `requireUser()`, `requireAdmin()`.
+- `view-mode.ts` — vue admin/utilisateur (cosmétique, jamais une autorisation).
+- `actions.ts` — server actions : `loginAction`, `changePasswordAction`, `logoutAction`, `toggleViewModeAction`.
+- `redirect.ts`, `password-policy.ts`, `schemas.ts`, `audit.ts`, `cookies.ts`, `constants.ts`.
+
+## Règles à respecter
+
+- Toute nouvelle page ou action protégée appelle `requireUser()` / `requireAdmin()` : le middleware n'est qu'un confort.
+- Rôle, `isActive`, `mustChangePassword` : toujours lus dans `profiles`, jamais dans le JWT.
+- Ne jamais décider d'un accès avec `getSession()`.
 
 ## V1 → V2
 
-- **V1 (Vercel + Supabase)** : authentification par email professionnel et mot de passe via Supabase Auth, gestion des rôles (utilisateur / admin) stockée en base.
-- **V2 (serveur interne Carrefour Property)** : bascule vers un SSO d'entreprise (réseau fermé). Le reste de l'application ne devra pas être modifié grâce à cette couche d'abstraction.
+- **V1 (Vercel + Supabase)** : email professionnel + mot de passe via Supabase Auth, rôles en base.
+- **V2 (serveur interne Carrefour Property)** : SSO d'entreprise. Seules l'implémentation d'`AuthService` et le middleware changent (voir « Notes de migration V2 » dans `docs/AUTH.md`).

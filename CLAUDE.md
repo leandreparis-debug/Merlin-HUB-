@@ -19,7 +19,7 @@ Merlin est le hub web interne de Carrefour Property : page d'entrée protégée 
 ```bash
 npm run dev        # serveur de développement
 npm run check       # lint + format:check + typecheck + test (à lancer avant de considérer une tâche terminée)
-npm run test:e2e    # tests Playwright (build + start automatiques)
+npm run test:e2e    # tests Playwright (démarre next dev en DATA_PROVIDER=memory sur le port 3100)
 npm run build       # build de production
 npm run db:bundle            # concatène les migrations SQL (supabase/all-in-one.sql)
 npm run db:bootstrap-admin   # crée le premier compte administrateur
@@ -36,6 +36,10 @@ DATA_PROVIDER=memory npm run dev   # développer sans Supabase (jamais en produc
 
 **Aucun accès direct à la base de données ou au fournisseur d'authentification en dehors de `src/lib/data`, `src/lib/supabase` et `src/lib/auth`.** Toujours passer par les repositories (`getUserRepositories()` / `getAdminRepositories()` dans `src/lib/data/index.ts`) ou par le service d'auth. Imposé par ESLint (`no-restricted-imports` sur `@supabase/*`, dérogation pour ces dossiers, `scripts/` et les tests). Cette règle permet la migration V1 (Vercel + Supabase) → V2 (serveur interne Carrefour Property, SQL Server, SSO) sans réécrire le reste de l'application. Détails dans `docs/ARCHITECTURE.md` et `docs/DATA-MODEL.md`.
 
+## Règle d'autorisation (étape 3)
+
+**Toute nouvelle page ou server action protégée appelle `requireUser()` (ou `requireAdmin()` pour l'administration) côté serveur.** Le middleware ne sert qu'au confort (refresh de session, redirection UX) et ne remplace jamais ce contrôle. Rôle, `isActive` et `mustChangePassword` se lisent dans `profiles`, jamais dans le JWT. L'identité se vérifie avec `getUser()`, jamais `getSession()`. La vue admin/utilisateur (cookie `merlin_view`) est cosmétique : elle ne donne aucun droit. Détails : `docs/AUTH.md`. Ajouter toute nouvelle route de premier niveau à `PROTECTED_PATH_PREFIXES` (`src/lib/auth/constants.ts`).
+
 ## Rappels
 
 - Mode clair uniquement, UI en français, code et noms techniques en anglais.
@@ -49,5 +53,8 @@ DATA_PROVIDER=memory npm run dev   # développer sans Supabase (jamais en produc
 
 - ✅ **Étape 1** — Initialisation du projet : Next.js 15 + outillage (ESLint, Prettier, Vitest, Playwright), structure de dossiers, design system (tokens Tailwind v4, composants shadcn/ui adaptés), layout responsive (header, footer, conteneur), page d'accueil provisoire, route `/api/health`, `robots.ts`, documentation de base.
 - ✅ **Étape 2** — Base de données et couche d'abstraction : migrations SQL (schéma, RLS, fonctions `set_app_status`/`reorder_apps`), types de domaine et schémas zod, interfaces de repository, implémentations Supabase et mémoire, fabrique (`getUserRepositories`/`getAdminRepositories`), règle ESLint de frontière, scripts (`db:bootstrap-admin`, `db:bundle`), seed de développement, tests (contrats, mappers, traduction d'erreurs, validation PGlite), `docs/DATA-MODEL.md` et `docs/SUPABASE-SETUP.md`. Les repositories `AnnouncementRepository` et `ReportRepository` ne sont que des interfaces à ce stade (implémentations aux étapes 7 et 8).
+
+- ✅ **Étape 3** — Authentification : `AuthService` (implémentations Supabase et mémoire), connexion/déconnexion, changement de mot de passe forcé, politique de mot de passe, `requireUser`/`requireAdmin`, middleware, rôles, bascule vue admin/utilisateur, menu utilisateur, page `/admin` provisoire, journal d'authentification, e2e (serveur `next dev` en mode mémoire), `docs/AUTH.md`.
+- ⏭️ **Étape 4** — Page d'accueil et catalogue d'applications.
 
 _Mettre à jour cette liste à la fin de chaque étape._

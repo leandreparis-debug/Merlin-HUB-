@@ -21,6 +21,18 @@ compte directement via l'API Supabase Auth :
 2. Désactiver **« Allow new users to sign up »** (ou équivalent selon la
    version du dashboard : **Authentication → Settings → User Signups**).
 
+### Autres réglages Authentication à vérifier (étape 3)
+
+Dans **Authentication** du dashboard :
+
+- **Inscriptions désactivées** (voir ci-dessus) : aucun compte ne se crée hors de l'administration.
+- **Durée de vie des sessions / du JWT** raisonnable : JWT expiry par défaut (1 h) conservé ; si votre offre le permet, définir une durée maximale de session (ex. 8 h) et un délai d'inactivité (**Authentication → Sessions**).
+- **Limitations de débit activées** (**Authentication → Rate Limits**) : conserver les limites par défaut sur les connexions par mot de passe ; Merlin affiche « Trop de tentatives, réessayez dans quelques minutes » quand Supabase répond par une limitation.
+- **Aucun flux de récupération de mot de passe par email** : Merlin n'utilise ni « Reset password » ni lien magique. Ne pas configurer ces modèles d'email ; l'administrateur réinitialise le mot de passe à la main (étape 6).
+- **Confirmation d'email** : les comptes sont créés par le service role avec l'email déjà confirmé.
+
+**Le mot de passe provisoire est communiqué hors application** (en main propre, téléphone, canal sécurisé) : Merlin n'envoie jamais de mot de passe par email. Il doit être changé à la première connexion.
+
 ## 3. Récupérer les clés
 
 Dans **Project Settings → API** :

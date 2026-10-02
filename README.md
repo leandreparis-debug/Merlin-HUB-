@@ -27,6 +27,12 @@ Voir `.env.example`. Seule `NEXT_PUBLIC_APP_URL` est obligatoire (valeur par dé
 
 Pour les données (étape 2), `DATA_PROVIDER` vaut `supabase` par défaut (voir `docs/SUPABASE-SETUP.md` pour configurer un projet) ou `memory` pour développer sans Supabase (store en mémoire, jamais en production). Avec `DATA_PROVIDER=supabase`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY` sont requises (`getServerEnv()` dans `src/lib/env.ts`).
 
+Authentification (étape 3) : `MEMORY_AUTH_SECRET` (secret de signature des sessions de l'auth en mémoire, dev/e2e uniquement, jamais en production ; valeur de repli de développement si absent) et `NEXT_PUBLIC_ADMIN_CONTACT_EMAIL` (facultatif, contact affiché sur la page de connexion).
+
+### Comptes de développement
+
+Avec `DATA_PROVIDER=memory npm run dev`, quatre comptes **factices** sont disponibles (jamais utilisables hors dev) : `admin@example.test` / `Admin-Password-123`, `user@example.test` / `User-Password-123`, `nouveau@example.test` / `Temp-Password-1234` (doit changer son mot de passe), `desactive@example.test` / `Disabled-Pass-123` (compte désactivé). Voir `docs/AUTH.md`.
+
 ## Scripts disponibles
 
 | Script                       | Description                                                           |
@@ -41,7 +47,7 @@ Pour les données (étape 2), `DATA_PROVIDER` vaut `supabase` par défaut (voir 
 | `npm run typecheck`          | Vérifie les types TypeScript (`tsc --noEmit`)                         |
 | `npm run test`               | Lance les tests unitaires (Vitest, mode run)                          |
 | `npm run test:watch`         | Lance les tests unitaires en mode watch                               |
-| `npm run test:e2e`           | Lance les tests end-to-end (Playwright)                               |
+| `npm run test:e2e`           | Lance les tests end-to-end (Playwright, `next dev` en mode mémoire)   |
 | `npm run check`              | Enchaîne lint, format:check, typecheck et test                        |
 | `npm run db:bundle`          | Concatène les migrations SQL dans `supabase/all-in-one.sql`           |
 | `npm run db:bootstrap-admin` | Crée le premier compte administrateur (voir `docs/SUPABASE-SETUP.md`) |
@@ -74,7 +80,7 @@ Voir `docs/ARCHITECTURE.md` pour le détail des règles de dépendance entre ces
 
 1. ✅ Initialisation du projet, outillage, design system, layout
 2. ✅ Base de données et couche d'abstraction (migrations SQL, RLS, repositories Supabase + mémoire)
-3. Authentification (identifiant professionnel + mot de passe, rôles utilisateur/admin, session)
+3. ✅ Authentification (email professionnel + mot de passe, rôles utilisateur/admin, vue admin/utilisateur)
 4. Page d'accueil et catalogue d'applications (statut en ligne/hors ligne/maintenance, journal des changements)
 5. Administration des applications
 6. Administration des utilisateurs

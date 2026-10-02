@@ -26,6 +26,13 @@ Cette règle est imposée par ESLint (`no-restricted-imports` sur `@supabase/*`,
 
 `src/lib/supabase/` expose les deux clients bas niveau (`admin.ts` avec la clé service role, `server.ts` basé sur la session utilisateur via `@supabase/ssr`), tous deux `import "server-only"`. Détail du schéma SQL, de la matrice RLS et des fonctions : `docs/DATA-MODEL.md`. Mise en route d'un projet Supabase : `docs/SUPABASE-SETUP.md`.
 
+### Authentification et rôles (étape 3)
+
+- `src/lib/auth` expose `AuthService` (interface), `getAuthService()` (fabrique selon `DATA_PROVIDER` : Supabase ou mémoire), `getCurrentUser()`, `requireUser()`, `requireAdmin()`, `getViewMode()`. Le rôle et l'état du compte sont lus dans `profiles` à chaque requête ; l'identité est vérifiée par le serveur d'authentification (`getUser()`).
+- Routes : groupe `(public)` (`/login`), groupe `(app)` (layout protégé par `requireUser()`, accueil, `/change-password`, `/admin`). `/api/health`, `robots.txt` et la 404 restent publics.
+- Le middleware (`src/middleware.ts`) ne fait que rafraîchir la session et rediriger les non-connectés (UX) ; **l'autorisation réelle est refaite côté serveur**. Toute nouvelle page ou action protégée appelle `requireUser()` ou `requireAdmin()`.
+- Détails, modèle de sécurité et notes de migration SSO : `docs/AUTH.md`.
+
 ### Trajectoire V1 → V2
 
 - **V1 (actuelle)** : hébergement Vercel, données et authentification via Supabase (Postgres + Supabase Auth), connexion par identifiant professionnel (email) et mot de passe.
@@ -60,5 +67,6 @@ Aucune dépendance circulaire : `src/lib` et `src/types` ne doivent jamais impor
 - Aucun secret en dur dans le code. Les secrets vivent dans `.env.local` (non versionné) ; `.env.example` documente les clés attendues avec des valeurs factices.
 - Seules les variables préfixées `NEXT_PUBLIC_` peuvent être exposées au client ; `src/lib/env.ts` sépare explicitement la lecture des variables publiques (`getPublicEnv`) et serveur (`getEnv`).
 - En-têtes de sécurité HTTP définis dans `next.config.ts` (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`).
+- Réponses applicatives en `Cache-Control: no-store` (`next.config.ts`) ; modèle d'authentification dans `docs/AUTH.md`.
 - Le site n'est pas indexable (`robots.txt` et balise meta `robots` en `noindex`) : Merlin est un outil interne, pas un site public.
 - La route `/api/health` ne renvoie aucune information sensible.
