@@ -70,6 +70,7 @@ Les composants client du catalogue ne reçoivent que des view models sérialisab
 - ✅ **Étape 4** — Page d'accueil et catalogue : `loadCatalogue()` (view models sérialisables, `listVisible()` pour tous), cartes d'applications (statut, « Nouveau », « Bientôt disponible », liens externes validés), recherche insensible aux accents et filtre par catégorie reflétés dans l'URL, registre d'icônes `lucide-react`, apps de démonstration en mémoire, garde-fou `PROTECTED_PATH_PREFIXES`, `docs/CATALOGUE.md`.
 - ✅ **Étape 5** — Administration des applications : `/admin` (tableau de bord, liste, création/édition avec aperçu, ordre, masquage, statut + journal, suppression confirmée), actions serveur gardées par `requireAdmin()`, journal `app.*`, projet e2e `mutations`, `docs/ADMIN-APPS.md`.
 - ✅ **Étape 6** — Administration des utilisateurs : `/admin/users` (liste, création avec mot de passe provisoire affiché une seule fois, réinitialisation, rôle, désactivation / réactivation), `AccountAdminService` (Supabase et mémoire, compensation), règles `user-rules` (pas d'auto-sabotage, dernier admin actif), `ALLOWED_EMAIL_DOMAINS`, journal `user.*`, `docs/ADMIN-USERS.md`.
-- ⏭️ **Étape 7** — Annonces.
+- ✅ **Étape 7** — Annonces épinglables : `AnnouncementRepository` (Supabase et mémoire, `published_at` posée à la première publication, migration additive `…0700`), zone « Annonces » de l'accueil et `/announcements` (`PROTECTED_PATH_PREFIXES`), administration `/admin/announcements` (`requireAdmin()` dans chaque page et action), journal `announcement.*` sans titre ni texte, texte brut uniquement, `docs/ANNOUNCEMENTS.md`.
+- ⏭️ **Étape 8** — Signalements (bugs et demandes, avec suivi).
 
 _Mettre à jour cette liste à la fin de chaque étape._

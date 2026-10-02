@@ -88,7 +88,7 @@ Voir `docs/ARCHITECTURE.md` pour le détail des règles de dépendance entre ces
 4. ✅ Page d'accueil et catalogue d'applications (statut en ligne/hors ligne/maintenance, recherche, filtre par catégorie)
 5. ✅ Administration des applications (CRUD, ordre, visibilité, statut, journal ; `docs/ADMIN-APPS.md`)
 6. ✅ Administration des utilisateurs (création avec mot de passe provisoire, réinitialisation, rôle, désactivation ; `docs/ADMIN-USERS.md`)
-7. Annonces épinglables
+7. ✅ Annonces épinglables (zone d'accueil, `/announcements`, administration ; `docs/ANNOUNCEMENTS.md`)
 8. Signalements de bugs et demandes, avec suivi
 9. Journal d'activité
 10. Vérification globale et déploiement

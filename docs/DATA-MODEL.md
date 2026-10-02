@@ -122,7 +122,7 @@ réel de statut (aucune ligne si seul le message a changé).
 
 ### `announcements`
 
-Annonces internes épinglables (implémentation du repository à l'étape 7).
+Annonces internes épinglables, en texte brut. `published_at` est **nullable** (migration `20261001000700`) : `null` = jamais publiée ; un trigger la pose à la première publication et ne l'écrase jamais ; une contrainte impose une date aux annonces publiées. Tri : `is_pinned` décroissant, `published_at` décroissant, `created_at` décroissant. Détails : `docs/ANNOUNCEMENTS.md`.
 
 ### `reports` / `report_events`
 

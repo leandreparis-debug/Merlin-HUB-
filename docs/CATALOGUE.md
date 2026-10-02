@@ -50,7 +50,7 @@ Ajouter une icône : importer le composant depuis `lucide-react` dans `icons.ts`
 - Recherche dans nom, description et catégorie, insensible à la casse **et aux accents** (« entrepots » trouve « Outil entrepôts »). Filtre de catégorie : « Toutes » + une puce par catégorie présente, triées alphabétiquement ; les deux se combinent.
 - État reflété dans l'URL : `?q=…&cat=…` (mis à jour par `history.replaceState`, sans rechargement ni saut de scroll). Paramètres validés côté serveur (`parseCatalogueParams`) : catégorie inconnue → « Toutes », `q` limité à 100 caractères, caractères de contrôle retirés.
 - Compteur « N application(s) » dans une zone `aria-live="polite"`. États vides : « Aucune application disponible pour le moment. » (catalogue vide) ; message + « Réinitialiser les filtres » (aucun résultat).
-- Un emplacement (`data-slot="announcements"`) est réservé au-dessus du catalogue pour les annonces (étape 7).
+- La zone « Annonces » (`data-testid="announcements-zone"`) s'affiche au-dessus de la recherche, avant le catalogue ; elle a ses propres cartes (`announcement-card`) et ne réutilise pas `app-card` / `app-grid`. Une panne des annonces n'affecte jamais le catalogue. Détails : `docs/ANNOUNCEMENTS.md`.
 
 ## Jeu de démonstration en mémoire (dev / e2e)
 

@@ -54,6 +54,12 @@ Cette règle est imposée par ESLint (`no-restricted-imports` sur `@supabase/*`,
 - `src/lib/admin/users/` : règles métier pures (`user-rules.ts`, partagées par les actions et l'interface), view models, filtres, chargeurs de données (service role, après `requireAdmin()`), journal `user.*`.
 - Détails, garde-fous et notes de migration SSO : `docs/ADMIN-USERS.md`.
 
+### Annonces (étape 7)
+
+- `AnnouncementRepository` (`listPublished`, `listAll`, `getById`, `create`, `update`, `setPinned`, `setPublished`, `delete`), implémentations Supabase et mémoire, suite de contrat commune.
+- Côté utilisateur : `src/lib/announcements/` (view models sérialisables, sélection de l'accueil, chargeurs via `getUserRepositories()`) et `src/components/announcements/`. Côté admin : `src/app/(app)/admin/announcements/` (pages et actions, `requireAdmin()` partout) et `src/lib/admin/announcements/`.
+- Détails : `docs/ANNOUNCEMENTS.md`.
+
 ### Trajectoire V1 → V2
 
 - **V1 (actuelle)** : hébergement Vercel, données et authentification via Supabase (Postgres + Supabase Auth), connexion par identifiant professionnel (email) et mot de passe.
