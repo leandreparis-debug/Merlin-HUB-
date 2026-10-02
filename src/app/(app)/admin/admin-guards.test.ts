@@ -21,7 +21,7 @@ describe("garde-fous statiques de l'administration", () => {
     const targets = files.filter((file) =>
       /(?:^|[\\/])(layout|page)\.tsx$/.test(file),
     );
-    expect(targets.length).toBeGreaterThanOrEqual(5);
+    expect(targets.length).toBeGreaterThanOrEqual(8);
     const missing = targets
       .filter((file) => !read(file).includes("await requireAdmin()"))
       .map(rel);
@@ -61,7 +61,9 @@ describe("garde-fous statiques de l'administration", () => {
     const componentsDir = path.join(process.cwd(), "src", "components");
     const offenders = walk(componentsDir)
       .filter((file) => /\.tsx?$/.test(file))
-      .filter((file) => read(file).includes("getAdminRepositories"))
+      .filter((file) =>
+        /getAdminRepositories|getAccountAdminService/.test(read(file)),
+      )
       .map((file) => path.relative(componentsDir, file));
     expect(offenders).toEqual([]);
   });
