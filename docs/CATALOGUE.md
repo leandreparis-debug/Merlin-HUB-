@@ -2,6 +2,8 @@
 
 La page d'accueil (`/`) affiche le catalogue des applications visibles sous forme de cartes. Elle est réservée aux utilisateurs connectés (`requireUser()`), admin compris : `AppRepository.listVisible()` est utilisé pour **tous**. La gestion des apps masquées se fera sous `/admin` (étape 5).
 
+Les applications se gèrent dans l'administration : voir `docs/ADMIN-APPS.md`.
+
 ## Chaîne de données
 
 `src/lib/catalogue/data.ts` (`loadCatalogue()`, serveur uniquement) → `getUserRepositories().apps.listVisible()` (RLS appliquée) → tri `sortOrder` puis nom (ordre français) → **view models** (`AppCardModel`, `src/lib/catalogue/view-model.ts`) envoyés au composant client `CatalogueView`.
@@ -40,7 +42,7 @@ Une app sans URL, ou dont l'URL n'a pas le protocole `http:`/`https:` (`safeExte
 
 `src/lib/catalogue/icons.ts` : registre **explicite** d'une cinquantaine d'icônes `lucide-react` (clé = nom lucide en kebab-case), plutôt que d'importer toute la bibliothèque. `ICON_NAMES` (liste triée, sans doublon) servira de liste de choix au formulaire d'administration (étape 5). `resolveIcon(name)` retombe sur `app-window` pour un nom inconnu, vide ou absent, sans erreur.
 
-Ajouter une icône : importer le composant depuis `lucide-react` dans `icons.ts`, ajouter l'entrée `"nom-kebab": Composant` au registre. Le test `icons.test.ts` vérifie l'absence de doublon.
+Ajouter une icône : importer le composant depuis `lucide-react` dans `icons.ts`, ajouter l'entrée `"nom-kebab": Composant` au registre. Le test `icons.test.ts` vérifie l'absence de doublon. `ICON_NAMES` alimente automatiquement le sélecteur d'icône du formulaire d'administration (`docs/ADMIN-APPS.md`).
 
 ## Recherche, filtre et URL
 

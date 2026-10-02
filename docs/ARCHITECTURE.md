@@ -40,6 +40,13 @@ Cette règle est imposée par ESLint (`no-restricted-imports` sur `@supabase/*`,
 - Garde-fou : tout nouveau segment de premier niveau de `src/app/(app)` doit figurer dans `PROTECTED_PATH_PREFIXES` (test `protected-paths.test.ts`).
 - Détails : `docs/CATALOGUE.md`.
 
+### Administration des applications (étape 5)
+
+- `src/app/(app)/admin/` : layout (titre + sous-navigation), tableau de bord, liste, création, fiche. `requireAdmin()` est appelé dans le layout, dans chaque page et en première instruction de chaque server action (`apps/actions.ts`) : un layout ne protège jamais seul.
+- `src/lib/admin/apps/` : `form.ts` (composition des schémas zod existants), `slugify.ts`, `view-models.ts` (sérialisables, dates relatives et absolues Europe/Paris), `data.ts` (chargeurs service role, après `requireAdmin()`), `audit.ts` (journal `app.*`).
+- Aucune donnée d'administration n'est lue par un composant : seuls des view models sont transmis aux composants client (`src/components/admin/`).
+- Détails, règles et stratégie e2e : `docs/ADMIN-APPS.md`.
+
 ### Trajectoire V1 → V2
 
 - **V1 (actuelle)** : hébergement Vercel, données et authentification via Supabase (Postgres + Supabase Auth), connexion par identifiant professionnel (email) et mot de passe.

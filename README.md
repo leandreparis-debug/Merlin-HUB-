@@ -37,22 +37,22 @@ Avec `DATA_PROVIDER=memory npm run dev`, quatre comptes **factices** sont dispon
 
 ## Scripts disponibles
 
-| Script                       | Description                                                           |
-| ---------------------------- | --------------------------------------------------------------------- |
-| `npm run dev`                | Démarre le serveur de développement                                   |
-| `npm run build`              | Build de production                                                   |
-| `npm run start`              | Démarre le serveur de production (après `build`)                      |
-| `npm run lint`               | Vérifie le code avec ESLint                                           |
-| `npm run lint:fix`           | Corrige automatiquement les problèmes ESLint                          |
-| `npm run format`             | Formate le code avec Prettier                                         |
-| `npm run format:check`       | Vérifie le formatage sans modifier les fichiers                       |
-| `npm run typecheck`          | Vérifie les types TypeScript (`tsc --noEmit`)                         |
-| `npm run test`               | Lance les tests unitaires (Vitest, mode run)                          |
-| `npm run test:watch`         | Lance les tests unitaires en mode watch                               |
-| `npm run test:e2e`           | Lance les tests end-to-end (Playwright, `next dev` en mode mémoire)   |
-| `npm run check`              | Enchaîne lint, format:check, typecheck et test                        |
-| `npm run db:bundle`          | Concatène les migrations SQL dans `supabase/all-in-one.sql`           |
-| `npm run db:bootstrap-admin` | Crée le premier compte administrateur (voir `docs/SUPABASE-SETUP.md`) |
+| Script                       | Description                                                                                         |
+| ---------------------------- | --------------------------------------------------------------------------------------------------- |
+| `npm run dev`                | Démarre le serveur de développement                                                                 |
+| `npm run build`              | Build de production                                                                                 |
+| `npm run start`              | Démarre le serveur de production (après `build`)                                                    |
+| `npm run lint`               | Vérifie le code avec ESLint                                                                         |
+| `npm run lint:fix`           | Corrige automatiquement les problèmes ESLint                                                        |
+| `npm run format`             | Formate le code avec Prettier                                                                       |
+| `npm run format:check`       | Vérifie le formatage sans modifier les fichiers                                                     |
+| `npm run typecheck`          | Vérifie les types TypeScript (`tsc --noEmit`)                                                       |
+| `npm run test`               | Lance les tests unitaires (Vitest, mode run)                                                        |
+| `npm run test:watch`         | Lance les tests unitaires en mode watch                                                             |
+| `npm run test:e2e`           | Lance les tests end-to-end (Playwright, `next dev` en mode mémoire ; projet `mutations` en dernier) |
+| `npm run check`              | Enchaîne lint, format:check, typecheck et test                                                      |
+| `npm run db:bundle`          | Concatène les migrations SQL dans `supabase/all-in-one.sql`                                         |
+| `npm run db:bootstrap-admin` | Crée le premier compte administrateur (voir `docs/SUPABASE-SETUP.md`)                               |
 
 ## Structure des dossiers
 
@@ -84,7 +84,7 @@ Voir `docs/ARCHITECTURE.md` pour le détail des règles de dépendance entre ces
 2. ✅ Base de données et couche d'abstraction (migrations SQL, RLS, repositories Supabase + mémoire)
 3. ✅ Authentification (email professionnel + mot de passe, rôles utilisateur/admin, vue admin/utilisateur)
 4. ✅ Page d'accueil et catalogue d'applications (statut en ligne/hors ligne/maintenance, recherche, filtre par catégorie)
-5. Administration des applications
+5. ✅ Administration des applications (CRUD, ordre, visibilité, statut, journal ; `docs/ADMIN-APPS.md`)
 6. Administration des utilisateurs
 7. Annonces épinglables
 8. Signalements de bugs et demandes, avec suivi
